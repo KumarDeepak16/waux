@@ -146,6 +146,12 @@ scripts/       build, cipher font and avatar generators, icon renderer, verifica
 docs/          landing page (GitHub Pages, waux.1619.in)
 ```
 
+### Releasing
+
+1. Bump `version` in `static/manifest.json` and `package.json`.
+2. Commit, then tag and push: `git tag v1.0.1 && git push origin v1.0.1`.
+3. The **Release** workflow tests, builds and attaches `waux-<version>.zip` to that GitHub release. The website's Download button always serves the newest release.
+
 **How it survives WhatsApp updates.** WhatsApp styles itself with its own design tokens (`--WDS-*`). WAUX compiles your tokens into a full palette and overrides those variables, so most of the interface follows without touching WhatsApp's markup. Structural styling uses only stable hooks (ids, `data-testid`, ARIA roles, `data-icon`), never hashed class names, and lives in `src/adapter` and `src/content/skin.css`.
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and report security issues as described in [SECURITY.md](SECURITY.md).

@@ -99,6 +99,54 @@
         margin-inline: auto;
         padding-inline: var(--pad);
       }
+      /* Slim, rounded scrollbar that lights up on hover. */
+      html {
+        scrollbar-gutter: stable;
+      }
+      ::-webkit-scrollbar {
+        width: 11px;
+        height: 11px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        border: 3px solid transparent;
+        border-radius: 10px;
+        background: var(--line-strong) padding-box;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--accent) padding-box;
+      }
+      @supports not selector(::-webkit-scrollbar) {
+        html {
+          scrollbar-width: thin;
+          scrollbar-color: var(--line-strong) var(--bg);
+        }
+      }
+      .progress {
+        position: fixed;
+        inset: 0 0 auto 0;
+        z-index: 20;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        pointer-events: none;
+      }
+      @supports (animation-timeline: scroll()) {
+        @media (prefers-reduced-motion: no-preference) {
+          .progress {
+            animation: progress linear both;
+            animation-timeline: scroll(root);
+          }
+          @keyframes progress {
+            to {
+              transform: scaleX(1);
+            }
+          }
+        }
+      }
       ::selection {
         background: var(--accent);
         color: var(--accent-fg);
@@ -111,22 +159,22 @@
       /* ---- Type ---------------------------------------------------------------- */
       .display {
         margin: 0;
-        font-size: clamp(54px, 10.4vw, 168px);
+        font-size: clamp(42px, 7.2vw, 112px);
         font-weight: 680;
-        line-height: 0.92;
-        letter-spacing: -0.055em;
+        line-height: 0.95;
+        letter-spacing: -0.05em;
       }
       .h2 {
         margin: 0;
-        font-size: clamp(38px, 6vw, 92px);
+        font-size: clamp(32px, 4.2vw, 62px);
         font-weight: 650;
-        line-height: 0.98;
-        letter-spacing: -0.045em;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
       }
       .lede {
         margin: 0;
         max-width: 34ch;
-        font-size: clamp(19px, 1.7vw, 23px);
+        font-size: clamp(17px, 1.35vw, 20px);
         line-height: 1.45;
         color: var(--muted);
         letter-spacing: -0.012em;
@@ -134,9 +182,9 @@
       .statement {
         margin: 0;
         max-width: 24ch;
-        font-size: clamp(28px, 3.6vw, 52px);
-        font-weight: 560;
-        line-height: 1.12;
+        font-size: clamp(22px, 2.5vw, 34px);
+        font-weight: 540;
+        line-height: 1.22;
         letter-spacing: -0.035em;
       }
       .statement .dim {
@@ -335,7 +383,7 @@
 
       /* ---- Sections ----------------------------------------------------------------------- */
       .sec {
-        padding: clamp(96px, 16vh, 176px) 0;
+        padding: clamp(80px, 13vh, 144px) 0;
       }
       .rule {
         border: 0;
@@ -541,14 +589,14 @@
       .cap {
         display: grid;
         place-items: center;
-        min-width: clamp(110px, 14vw, 200px);
-        height: clamp(110px, 14vw, 200px);
+        min-width: clamp(84px, 9vw, 132px);
+        height: clamp(84px, 9vw, 132px);
         padding: 0 clamp(20px, 3vw, 40px);
         border: 1px solid var(--line-strong);
         border-bottom-width: clamp(6px, 0.8vw, 10px);
         border-radius: clamp(14px, 2vw, 26px);
         background: var(--card);
-        font-size: clamp(40px, 6vw, 92px);
+        font-size: clamp(30px, 3.8vw, 56px);
         font-weight: 620;
         letter-spacing: -0.04em;
         box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
@@ -591,7 +639,7 @@
         gap: clamp(24px, 4vw, 64px);
       }
       .zero__n {
-        font-size: clamp(160px, 26vw, 400px);
+        font-size: clamp(120px, 17vw, 250px);
         font-weight: 700;
         line-height: 0.78;
         letter-spacing: -0.08em;
@@ -641,7 +689,7 @@
       .steps b {
         display: block;
         margin-bottom: 6px;
-        font-size: 22px;
+        font-size: 19px;
         font-weight: 620;
         letter-spacing: -0.02em;
       }
@@ -680,7 +728,7 @@
         justify-content: space-between;
         gap: 24px;
         padding: 26px 0;
-        font-size: clamp(19px, 2vw, 24px);
+        font-size: clamp(17px, 1.6vw, 20px);
         font-weight: 560;
         letter-spacing: -0.02em;
         cursor: pointer;
@@ -711,7 +759,7 @@
       }
       .wordmark {
         margin: 0 0 clamp(28px, 4vh, 48px) -0.04em;
-        font-size: clamp(120px, 30vw, 460px);
+        font-size: clamp(96px, 21vw, 300px);
         font-weight: 760;
         line-height: 0.76;
         letter-spacing: -0.07em;
@@ -758,6 +806,32 @@
         opacity: 1;
         transform: none;
       }
+      /* Section titles rise word by word. */
+      .w {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(0.45em);
+        transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: calc(var(--w, 0) * 55ms);
+      }
+      .is-in .w {
+        opacity: 1;
+        transform: none;
+      }
+      .avatars img {
+        animation: bob 3.4s ease-in-out infinite;
+      }
+      .avatars img:nth-child(2n) {
+        animation-delay: -0.8s;
+      }
+      .avatars img:nth-child(3n) {
+        animation-delay: -1.7s;
+      }
+      @keyframes bob {
+        50% {
+          translate: 0 -4px;
+        }
+      }
       .rise {
         animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
         animation-delay: calc(var(--i, 0) * 110ms);
@@ -775,7 +849,8 @@
           animation: none !important;
           transition: none !important;
         }
-        .reveal {
+        .reveal,
+        .w {
           opacity: 1;
           transform: none;
         }
@@ -804,6 +879,7 @@
     </style>
   </head>
   <body>
+    <div class="progress" aria-hidden="true"></div>
     <header class="nav" id="nav">
       <div class="wrap nav__in">
         <a class="brand" href="#top" aria-label="WAUX home"><img src="assets/icon.svg" alt="" width="28" height="28" />WAUX</a>
@@ -827,7 +903,7 @@
           <div class="hero__meta">
             <p class="lede rise" style="--i: 2">A premium theme, cipher privacy and quick replies. Nothing ever leaves your device.</p>
             <div class="hero__cta rise" style="--i: 3">
-              <a class="btn btn--primary" href="https://github.com/KumarDeepak16/waux/releases/latest">
+              <a class="btn btn--primary" href="https://github.com/KumarDeepak16/waux/releases/latest" data-download>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
                 Download
               </a>
@@ -915,7 +991,7 @@
       <!-- Keyboard -->
       <section class="sec" id="keys">
         <div class="wrap">
-          <div class="caps reveal" aria-hidden="true">
+          <div class="caps reveal" aria-hidden="true" id="caps">
             <span class="cap" data-cap>Ctrl</span>
             <span class="cap cap--accent" data-cap>K</span>
           </div>
@@ -958,15 +1034,16 @@
             <h2 class="h2">Get WAUX.</h2>
           </div>
           <ol class="steps">
-            <li class="reveal"><b>Download</b><span>Grab <code>waux-1.0.0.zip</code> from the latest GitHub release and unzip it.</span></li>
+            <li class="reveal"><b>Download</b><span>Get the latest <code>.zip</code> from GitHub Releases and unzip it.</span></li>
             <li class="reveal" style="--i: 1"><b>Load</b><span>Open <code>chrome://extensions</code>, turn on Developer mode, click Load unpacked, pick the folder.</span></li>
             <li class="reveal" style="--i: 2"><b>Open WhatsApp</b><span>Go to web.whatsapp.com and press <code>Ctrl K</code>.</span></li>
           </ol>
           <div class="install__cta reveal">
-            <a class="btn btn--primary" href="https://github.com/KumarDeepak16/waux/releases/latest">
+            <a class="btn btn--primary" href="https://github.com/KumarDeepak16/waux/releases/latest" data-download>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
-              Download from GitHub Releases
+              Download <span data-version>latest</span>
             </a>
+            <a class="link" href="https://github.com/KumarDeepak16/waux/releases" target="_blank" rel="noopener">All releases</a>
             <span class="install__note">Chrome, Edge, Brave, Arc and Opera. Version 120 or newer.</span>
           </div>
         </div>
@@ -1034,6 +1111,32 @@
         letters.forEach((s, i) => setTimeout(() => s.classList.add('is-plain'), reduced ? 0 : 700 + i * 70));
       }
 
+      // Section titles: wrap each word so it can rise in sequence.
+      document.querySelectorAll('.h2').forEach((h) => {
+        let n = 0;
+        const walk = (node) => {
+          for (const child of [...node.childNodes]) {
+            if (child.nodeType === 3) {
+              const frag = document.createDocumentFragment();
+              for (const part of child.textContent.split(/(\s+)/)) {
+                if (!part) continue;
+                if (/^\s+$/.test(part)) frag.append(part);
+                else {
+                  const w = document.createElement('span');
+                  w.className = 'w';
+                  w.style.setProperty('--w', n++);
+                  w.textContent = part;
+                  frag.append(w);
+                }
+              }
+              child.replaceWith(frag);
+            } else if (child.nodeType === 1 && child.tagName !== 'BR') walk(child);
+          }
+        };
+        walk(h);
+        if (!h.classList.contains('reveal')) h.closest('.reveal') || h.classList.add('reveal');
+      });
+
       // Scroll reveals.
       const io = new IntersectionObserver(
         (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('is-in'), io.unobserve(e.target))),
@@ -1064,8 +1167,16 @@
         }),
       );
 
-      // The keycaps press with the real shortcut.
+      // The keycaps press with the real shortcut, and once on their own.
       const caps = document.querySelectorAll('[data-cap]');
+      if (!reduced) {
+        new IntersectionObserver(([e], obs) => {
+          if (!e.isIntersecting) return;
+          obs.disconnect();
+          caps.forEach((c, i) => setTimeout(() => c.classList.add('is-down'), 350 + i * 160));
+          setTimeout(() => caps.forEach((c) => c.classList.remove('is-down')), 900);
+        }, { threshold: 0.6 }).observe(document.getElementById('caps'));
+      }
       addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
           e.preventDefault();
@@ -1073,6 +1184,17 @@
         }
       });
       addEventListener('keyup', () => caps.forEach((c) => c.classList.remove('is-down')));
+
+      // Always point Download at the newest release's zip, whatever its name.
+      fetch('https://api.github.com/repos/KumarDeepak16/waux/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((rel) => {
+          if (!rel) return;
+          const zip = (rel.assets || []).find((a) => a.name.endsWith('.zip'));
+          if (zip) document.querySelectorAll('[data-download]').forEach((a) => (a.href = zip.browser_download_url));
+          document.querySelectorAll('[data-version]').forEach((s) => (s.textContent = rel.tag_name));
+        })
+        .catch(() => {});
     </script>
   </body>
 </html>

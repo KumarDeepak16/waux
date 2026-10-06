@@ -1,0 +1,52 @@
+name: Release
+
+# Push a version tag (for example v1.0.1) to build, test and attach the
+# extension zip to that tag's GitHub release. The website's Download button
+# always links to the newest release.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build and attach the zip to
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check the tag matches the manifest version
+        run: |
+          version=$(node -p "require('./static/manifest.json').version")
+          if [ "v$version" != "$TAG" ]; then
+            echo "Tag $TAG does not match manifest version $version" >&2
+            exit 1
+          fi
+
+      - name: Test, typecheck and package
+        run: npm run dist
+
+      - name: Publish the release asset
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --title "WAUX ${TAG#v}" --generate-notes
+          fi
+          gh release upload "$TAG" release/waux-*.zip --clobber
