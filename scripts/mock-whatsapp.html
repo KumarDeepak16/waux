@@ -150,7 +150,7 @@
           [true, 'Yes. I booked the 6pm slot, the agent will meet us at the gate.', '18:04'],
           [false, 'Perfect, see you at 6', '18:05'],
           [true, 'I will bring the measurements and the signed draft.', '18:06'],
-          [false, 'Can you also send the photos of the kitchen? I want to compare the light.', '18:09'],
+          [false, 'Can you also send the photos of the kitchen? I want to compare the light.', '18:09', 'Om', '+91 81049 48725'],
           [true, 'Sending now.', '18:10'],
         ];
         content.innerHTML = `<div id="main">
@@ -158,9 +158,9 @@
             <div class="head-text"><span data-testid="conversation-info-header-chat-title"><span dir="auto">Nisha</span></span><span class="head-sub" title="online">online</span></div></header>
           <div class="wall" style="position:absolute;inset:60px 0 76px;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%223%22 fill=%22%23ffffff10%22/%3E%3C/svg%3E');pointer-events:none"></div><div class="msgs" role="application" style="position:relative"><div class="day">Today</div>${msgs
             .map(
-              ([out, text, time, sender], i) =>
-                `<div role="row" class="${out ? 'out' : ''}"><div data-testid="conv-msg-${out}_${i}"><div data-testid="msg-container">${
-                  sender ? `<span class="sender" dir="auto">${sender}</span>` : ''
+              ([out, text, time, sender, phone], i) =>
+                `<div role="row" class="${out ? 'out' : ''}">${phone ? '<div class="ini" style="width:28px;height:28px;margin-right:8px;border-radius:50%;background:#3a2a20;color:#ffcf9e;display:grid;place-items:center;font-size:12px">OM</div>' : ''}<div data-testid="conv-msg-${out}_${i}"><div data-testid="msg-container">${
+                  sender ? `<span class="sender" dir="auto">${sender}</span>${phone ? `<span class="phone"> ${phone}</span>` : ''}` : ''
                 }<span dir="ltr">${text}</span><span class="meta">${time}</span></div></div></div>`,
             )
             .join('')}</div>
@@ -168,7 +168,7 @@
         </div>`;
       }
       // WhatsApp's column divider, which Focus Mode must hide.
-      document.querySelector('.shell').insertAdjacentHTML('beforeend', `<div class="divider" style="left:${64 + 420}px"></div>`);
+      document.querySelector('.shell').insertAdjacentHTML('beforeend', `<div class="divider" style="left:${64 + 420}px"></div><div class="edgeline" style="position:absolute;left:64px;top:0;bottom:0;width:420px;border-right:1px solid #ff00ff;pointer-events:none"></div>`);
     </script>
   </body>
 </html>

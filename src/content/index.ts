@@ -388,19 +388,19 @@ const initialsObs = new MutationObserver(() => {
   initialsQueued = true;
   requestAnimationFrame(() => {
     initialsQueued = false;
-    markInitials(chatRows());
+    markAvatars();
   });
 });
-let initialsPane: Element | null = null;
+const markAvatars = () => markInitials([...chatRows(), ...document.querySelectorAll('#main [role="row"]')]);
+let initialsWatched: (Element | null)[] = [];
 function watchInitials() {
-  const pane = root.classList.contains('waux-p-avatar') ? document.getElementById('pane-side') : null;
-  if (pane === initialsPane) return;
+  const on = root.classList.contains('waux-p-avatar');
+  const targets = on ? [document.getElementById('pane-side'), document.getElementById('main')] : [];
+  if (targets.length === initialsWatched.length && targets.every((t, i) => t === initialsWatched[i])) return;
   initialsObs.disconnect();
-  initialsPane = pane;
-  if (pane) {
-    initialsObs.observe(pane, { childList: true, subtree: true });
-    markInitials(chatRows());
-  }
+  initialsWatched = targets;
+  for (const t of targets) if (t) initialsObs.observe(t, { childList: true, subtree: true });
+  if (on) markAvatars();
 }
 
 /** Marker passes that only matter when their feature is on. */

@@ -135,59 +135,59 @@ function commit(side: HTMLElement, content: HTMLElement) {
 }
 
 /**
- * Focus Mode leaves WhatsApp's column divider / resize handle (a thin, tall
- * element, often pointer-events:none) where the chat list used to end.
- * Search near the columns structurally and by hit-test, mark what's found.
+ * Focus Mode leaves a line where the chat list used to end: a thin resize
+ * handle, or the edge (border / shadow) of a wide, pointer-transparent layer.
+ * Search the layout around the columns for tall elements that are narrow or
+ * whose left/right edge sits on that x, and mark them.
  */
 export function hideDividers(x: number) {
-  const { side, content } = columns;
-  const tall = innerHeight * 0.5;
-  const isLine = (el: Element) => {
-    const r = el.getBoundingClientRect();
-    return r.width > 0 && r.width <= 16 && r.height > tall;
-  };
+  const { side } = columns;
   const scope = side?.parentElement?.parentElement ?? side?.parentElement;
-  if (scope) {
-    const queue: [Element, number][] = [[scope, 0]];
-    while (queue.length) {
-      const [el, depth] = queue.shift()!;
-      for (const child of el.children) {
-        if (child === side || child === content || child.id === 'main' || child.tagName === 'WAUX-OVERLAY') continue;
-        if (isLine(child)) setAttr(child, 'data-waux-divider', '');
-        else if (depth < 4) queue.push([child, depth + 1]);
+  if (!scope || !x) return;
+  const tall = innerHeight * 0.5;
+  const queue: [Element, number][] = [[scope, 0]];
+  while (queue.length) {
+    const [el, depth] = queue.shift()!;
+    for (const child of el.children) {
+      if (child === side || child.tagName === 'WAUX-OVERLAY' || child.hasAttribute('data-waux-divider')) continue;
+      const r = child.getBoundingClientRect();
+      if (r.height > tall) {
+        if (r.width > 0 && r.width <= 16) setAttr(child, 'data-waux-divider', '');
+        else if (Math.abs(r.right - x) <= 3) setAttr(child, 'data-waux-divider', 'edge');
+        else if (Math.abs(r.left - x) <= 3) setAttr(child, 'data-waux-divider', 'border');
       }
-    }
-  }
-  if (!x) return;
-  for (const dx of [-2, -1, 0, 1, 2]) {
-    for (const el of document.elementsFromPoint(x + dx, innerHeight / 2)) {
-      const r = el.getBoundingClientRect();
-      if (isLine(el)) setAttr(el, 'data-waux-divider', '');
-      else if (Math.abs(r.left - x) <= 2 && parseFloat(getComputedStyle(el).borderLeftWidth) > 0) setAttr(el, 'data-waux-divider', 'border');
+      // Stay shallow inside the conversation itself.
+      const limit = child.closest('#main') ? 2 : 6;
+      if (depth < limit) queue.push([child, depth + 1]);
     }
   }
 }
 
+const avatarChecked = new WeakSet<Element>();
+
 /**
- * Avatars with no photo (initials or the default silhouette) have no <img> to
- * swap. Mark their painted circle so CSS can draw a 3D character on it.
+ * Avatars with no photo (initials, or WhatsApp's default silhouette) have no
+ * <img> to swap. Find the small round painted circle in each chat card or
+ * message row and mark it, so CSS can draw a 3D character on it. Each row is
+ * checked once.
  */
-export function markInitials(rows: Element[]) {
+export function markInitials(rows: Iterable<Element>) {
   for (const row of rows) {
-    const col = row.querySelector('[data-testid="cell-frame-container"]')?.firstElementChild;
-    if (!col) continue;
-    const marked = col.querySelector('[data-waux-initials]') ?? (col.hasAttribute('data-waux-initials') ? col : null);
-    if (col.querySelector('img')) {
-      marked?.removeAttribute('data-waux-initials');
-      continue;
-    }
-    if (marked) continue;
-    const circle = [col, ...col.querySelectorAll('div, span')].find((el) => {
-      const cs = getComputedStyle(el);
+    if (avatarChecked.has(row)) continue;
+    avatarChecked.add(row);
+    let seen = 0;
+    for (const el of row.querySelectorAll('div, span')) {
+      if (++seen > 60) break;
       const r = el.getBoundingClientRect();
-      return r.width >= 24 && r.width <= 80 && Math.abs(r.width - r.height) < 4 && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent';
-    });
-    circle?.setAttribute('data-waux-initials', '');
+      if (r.width < 26 || r.width > 64 || Math.abs(r.width - r.height) > 3) continue;
+      if (el.querySelector('img')) continue;
+      const cs = getComputedStyle(el);
+      const radius = cs.borderTopLeftRadius;
+      const round = radius.endsWith('%') ? parseFloat(radius) >= 30 : parseFloat(radius) >= r.width * 0.3;
+      if (!round || cs.backgroundColor === 'rgba(0, 0, 0, 0)' || cs.backgroundColor === 'transparent') continue;
+      el.setAttribute('data-waux-initials', '');
+      break;
+    }
   }
 }
 

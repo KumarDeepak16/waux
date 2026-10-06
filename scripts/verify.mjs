@@ -159,6 +159,12 @@ const initials = await mock.evaluate(() => {
   return el ? getComputedStyle(el).backgroundImage.startsWith('url("data:image/svg') : false;
 });
 check('Mock: initials avatars become 3D avatars', initials);
+const extra = await mock.evaluate(() => ({
+  phone: getComputedStyle(document.querySelector('.phone')).fontFamily,
+  msgInitials: document.querySelector('.ini')?.hasAttribute('data-waux-initials'),
+}));
+check('Mock: sender phone numbers are ciphered', extra.phone.includes('WAUX Cipher'), extra.phone);
+check('Mock: initials avatars beside group messages become 3D', !!extra.msgInitials);
 const wall = await mock.evaluate(() => {
   const el = document.querySelector('[data-waux-wallpaper]');
   return { marked: !!el, opacity: el ? getComputedStyle(el).opacity : null, ambient: getComputedStyle(document.getElementById('main'), '::before').animationName };
@@ -198,9 +204,11 @@ await mock.waitForTimeout(1500);
 const focus = await mock.evaluate(() => ({
   side: getComputedStyle(document.querySelector('[data-waux-col="side"]')).display,
   divider: getComputedStyle(document.querySelector('.divider')).visibility,
-  edge: document.elementFromPoint(document.getElementById('main').getBoundingClientRect().left + 8, innerHeight / 2)?.tagName,
+  edge: getComputedStyle(document.querySelector('.edgeline')).borderRightColor,
+  edgeTab: document.elementFromPoint(document.getElementById('main').getBoundingClientRect().left + 8, innerHeight / 2)?.tagName,
 }));
-check('Mock: Focus hides chat list and divider, shows Chats tab', focus.side === 'none' && focus.divider === 'hidden' && focus.edge === 'WAUX-OVERLAY', JSON.stringify(focus));
+check('Mock: Focus hides chat list and divider, shows Chats tab', focus.side === 'none' && focus.divider === 'hidden' && focus.edgeTab === 'WAUX-OVERLAY', JSON.stringify(focus));
+check('Mock: Focus hides the edge line of overlay layers', focus.edge === 'rgba(0, 0, 0, 0)', focus.edge);
 await mock.screenshot({ path: path.join(shots, 'mock-focus.png') });
 await setSettings({ focus: false });
 

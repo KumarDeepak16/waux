@@ -424,6 +424,21 @@
         cursor: default;
         transition: transform 160ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 160ms, border-color 160ms;
       }
+      .msgrow {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+      }
+      .msgrow > img {
+        flex: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        box-shadow: 2px 2px 0 var(--hard);
+      }
+      .msgrow .msg {
+        max-width: 100%;
+      }
       .msg--out {
         justify-self: end;
         background: color-mix(in srgb, var(--accent) 16%, var(--card));
@@ -875,9 +890,9 @@
               <h3>Cipher text</h3>
               <p>A bundled font redraws every character. Hover a message to read it.</p>
               <div class="demo ciphered" id="demo">
-                <div class="msg"><b>Anchal</b><span>Sent the revised floor plan, page 3 has the changes</span><small>09:41</small></div>
+                <div class="msgrow"><img src="assets/avatars/0.svg" alt="" width="34" height="34" /><div class="msg"><b>Anchal</b><span>Sent the revised floor plan, page 3 has the changes</span><small>09:41</small></div></div>
                 <div class="msg msg--out"><span>Perfect, I will review it before the walkthrough tonight.</span><small>09:43</small></div>
-                <div class="msg"><b>Anchal</b><span>The agent will meet us at the gate at 6.</span><small>09:44</small></div>
+                <div class="msgrow"><img src="assets/avatars/3.svg" alt="" width="34" height="34" /><div class="msg"><b>Om</b><span>The agent will meet us at the gate at 6.</span><small>09:44</small></div></div>
                 <button class="btn btn--sm demo__toggle" id="demo-toggle" aria-pressed="true">Shield on</button>
               </div>
             </article>

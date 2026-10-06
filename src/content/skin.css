@@ -205,6 +205,14 @@ html.waux.waux-focus-on [data-waux-divider=""] {
 html.waux.waux-focus-on [data-waux-divider="border"] {
   border-left-color: transparent !important;
 }
+html.waux.waux-focus-on [data-waux-divider="edge"] {
+  border-right-color: transparent !important;
+  box-shadow: none !important;
+}
+html.waux.waux-focus-on [data-waux-divider="edge"]::before,
+html.waux.waux-focus-on [data-waux-divider="edge"]::after {
+  display: none !important;
+}
 
 /* ---- Reduced motion -------------------------------------------------------------------------- */
 
@@ -300,7 +308,7 @@ html.waux {
 }
 
 /* Cipher */
-html.waux.waux-style-cipher:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span[dir], span[dir] *, a):not(.waux-revealed *),
+html.waux.waux-style-cipher:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(.waux-revealed *),
 html.waux.waux-style-cipher:not(.waux-peek).waux-p-msg :is([data-testid="last-msg-status"], [data-testid="last-msg-status"] *):not(.waux-revealed *),
 html.waux.waux-style-cipher:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], [data-testid="cell-frame-title"] *, #main header span[dir], #main header span[title], #main header span[dir] *, #main header span[title] *):not(.waux-revealed *) {
   font-family: "WAUX Cipher" !important;
@@ -309,7 +317,7 @@ html.waux.waux-style-cipher:not(.waux-peek).waux-p-name :is([data-testid="cell-f
 }
 
 /* Blur (text only) */
-html.waux.waux-style-blur:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] span[dir]:not(.waux-revealed *),
+html.waux.waux-style-blur:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(:is(span, a) *):not(.waux-revealed *),
 html.waux.waux-style-blur:not(.waux-peek).waux-p-msg [data-testid="last-msg-status"]:not(.waux-revealed *),
 html.waux.waux-style-blur:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], #main header span[title], #main header span[dir]):not(.waux-revealed *) {
   filter: blur(var(--waux-blur-px));
