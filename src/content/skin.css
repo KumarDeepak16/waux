@@ -1,0 +1,353 @@
+/*
+  WAUX skin for web.whatsapp.com. Obsidian / soft-brutalist language:
+  hairline borders, hard offset shadows, square-shouldered shapes, one
+  ember signal, short purposeful motion.
+
+  Colors come from WhatsApp's own WDS tokens, which the theme engine
+  overrides (engines/theme/compile.ts). This file adds structure, type,
+  shape, depth, motion, privacy and layout states.
+  Every rule is gated on html.waux, so disabling WAUX is instant and total.
+  Hooks: ids, data-testid, roles, data-icon, and data-waux-* markers set by
+  adapter/markers.ts. Never hashed class names.
+*/
+
+@font-face {
+  font-family: "Geist";
+  src: url("chrome-extension://__MSG_@@extension_id__/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("chrome-extension://__MSG_@@extension_id__/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+/* Dot-matrix glyphs for every character: privacy without touching the DOM. */
+@font-face {
+  font-family: "WAUX Cipher";
+  src: url("chrome-extension://__MSG_@@extension_id__/fonts/WauxCipher.ttf") format("truetype");
+  font-display: block;
+}
+
+/* ---- Typography ----------------------------------------------------------- */
+
+html.waux.waux-font body,
+html.waux.waux-font body :is(div, span, p, input, textarea, button, h1, h2, h3, h4, h5, h6, label, a, strong, em, li) {
+  font-family: var(--waux-font) !important;
+}
+html.waux body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+html.waux [data-testid="cell-frame-title"],
+html.waux [data-testid="conversation-info-header-chat-title"] {
+  font-weight: 580 !important;
+  letter-spacing: -0.015em;
+}
+html.waux [data-testid="last-msg-status"] {
+  color: var(--waux-fg-muted);
+}
+
+/* ---- Global ------------------------------------------------------------------ */
+
+html.waux ::selection {
+  background: var(--waux-primary-soft);
+}
+html.waux {
+  scrollbar-color: var(--waux-border-strong) transparent;
+}
+html.waux :focus-visible {
+  outline-color: var(--waux-ring);
+}
+
+/* WhatsApp's own round buttons keep their shape; WAUX only adds a soft press. */
+html.waux button[data-navbar-item="true"] {
+  transition: transform 120ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+html.waux button[data-navbar-item="true"]:active {
+  transform: scale(0.94);
+}
+
+/* ---- Declutter ------------------------------------------------------------------ */
+
+html.waux.waux-hide-communities [data-waux-nav="communities"],
+html.waux.waux-hide-channels [data-waux-nav="channels"],
+html.waux.waux-hide-status [data-waux-nav="status"],
+html.waux.waux-hide-calls [data-waux-nav="calls"],
+html.waux.waux-hide-meta-ai [data-waux-nav="meta-ai"],
+html.waux.waux-hide-promo [data-waux-nav="promo"] {
+  display: none !important;
+}
+/* WhatsApp's start panel is covered by WAUX's (an opaque overlay layer);
+   nothing of WhatsApp's is hidden, so a layout surprise can never blank the app. */
+
+/* ---- Chat list: every row is a card ----------------------------------------------- */
+
+/* WhatsApp paints hover/selected on the row; WAUX paints the card instead. */
+html.waux #pane-side {
+  --WDS-surface-highlight: transparent !important;
+  --WDS-surface-pressed: transparent !important;
+}
+html.waux #pane-side [data-testid="cell-frame-container"] {
+  position: relative;
+  isolation: isolate;
+}
+html.waux #pane-side [data-testid="cell-frame-container"]::before {
+  content: "";
+  position: absolute;
+  inset: 3px 8px;
+  z-index: -1;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius);
+  background: var(--waux-s2);
+  box-shadow: 3px 3px 0 var(--waux-hard);
+  transition: background-color 140ms, border-color 140ms, transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 180ms;
+}
+html.waux #pane-side [role="row"]:hover [data-testid="cell-frame-container"]::before {
+  border-color: color-mix(in srgb, var(--waux-primary) 55%, var(--waux-border-strong));
+  background: var(--waux-s3);
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard));
+}
+html.waux #pane-side [aria-selected="true"] [data-testid="cell-frame-container"]::before {
+  border-color: var(--waux-primary);
+  background: var(--waux-accent);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--waux-primary);
+}
+/* Unread: an ember rail on the card's left edge. */
+html.waux #pane-side [data-testid^="list-item-"]:has([data-testid="icon-unread-count"]) [data-testid="cell-frame-container"]::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--waux-primary);
+}
+html.waux [data-testid="icon-unread-count"] {
+  border-radius: 5px !important;
+  font-family: var(--waux-mono) !important;
+  font-weight: 650 !important;
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+html.waux #side [role="tablist"] [role="tab"],
+html.waux #side [role="tablist"] button {
+  border-radius: var(--waux-radius-sm) !important;
+  font-family: var(--waux-mono) !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Search and composer: framed panels that light up ember on focus. */
+html.waux [data-waux-search],
+html.waux [data-waux-composer] {
+  border: 1px solid var(--waux-border-strong) !important;
+  transition: border-color 140ms, box-shadow 160ms, transform 160ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+html.waux [data-waux-search] {
+  border-radius: var(--waux-radius-sm) !important;
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+html.waux [data-waux-composer] {
+  border-radius: var(--waux-radius) !important;
+  box-shadow: 3px 3px 0 var(--waux-hard);
+}
+html.waux :is([data-waux-search], [data-waux-composer]):focus-within {
+  border-color: var(--waux-primary) !important;
+  box-shadow: 3px 3px 0 var(--waux-primary);
+  transform: translate(-1px, -1px);
+}
+html.waux #main footer [contenteditable="true"] {
+  caret-color: var(--waux-primary);
+}
+
+/* ---- Columns ------------------------------------------------------------------------ */
+
+/* No z-index on the list column: WhatsApp slides Calls, Status, Settings and
+   Profile panels over it, and they must stay on top. */
+
+/* ---- Conversation --------------------------------------------------------------------- */
+
+html.waux #main header {
+  box-shadow: 0 1px 0 var(--waux-border), 0 3px 0 var(--waux-hard-soft);
+  z-index: 2;
+}
+
+/* Bubbles: hairline + hard offset shadow, tokenized radius, no tails. */
+html.waux [data-testid="msg-container"] {
+  border-radius: var(--waux-radius) !important;
+  box-shadow: 0 0 0 1px var(--waux-border-strong), 3px 3px 0 var(--waux-hard) !important;
+  transition: box-shadow 180ms, transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+html.waux [data-testid^="conv-msg-"]:hover [data-testid="msg-container"] {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--waux-primary) 55%, var(--waux-border-strong)), 5px 5px 0 color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard)) !important;
+}
+html.waux :is([data-icon="tail-in"], [data-icon="tail-out"], [data-testid="tail-in"], [data-testid="tail-out"]) {
+  display: none !important;
+}
+html.waux #main [role="row"] {
+  padding-block: calc(var(--waux-msg-gap) / 2);
+}
+
+/* ---- Focus Mode ----------------------------------------------------------------------------- */
+
+html.waux.waux-focus-on [data-waux-col="side"] {
+  display: none !important;
+}
+html.waux.waux-focus-on [data-waux-divider=""] {
+  visibility: hidden !important;
+}
+html.waux.waux-focus-on [data-waux-divider="border"] {
+  border-left-color: transparent !important;
+}
+
+/* ---- Reduced motion -------------------------------------------------------------------------- */
+
+html.waux.waux-reduce-motion *,
+html.waux.waux-reduce-motion *::before,
+html.waux.waux-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---- Hide from sidebar ----------------------------------------------------------------------- */
+
+html.waux #pane-side [data-waux-hidden] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.waux #pane-side [data-waux-cut] {
+  height: calc(var(--waux-list-h) - var(--waux-list-cut)) !important;
+}
+
+/* ---- Ambient wallpaper ----------------------------------------------------------------- */
+/* WhatsApp's doodle layer is marked by adapter/markers.ts (data-waux-wallpaper). */
+
+html.waux:is(.waux-wall-ambient, .waux-wall-plain) #main {
+  --WDS-systems-chat-background-wallpaper: transparent !important;
+  --WDS-systems-chat-foreground-wallpaper: transparent !important;
+  background: var(--waux-bg) !important;
+}
+html.waux:is(.waux-wall-ambient, .waux-wall-plain) [data-waux-wallpaper] {
+  opacity: 0 !important;
+}
+html.waux.waux-wall-ambient #main {
+  position: relative;
+  isolation: isolate;
+}
+html.waux.waux-wall-ambient #main::before,
+html.waux.waux-wall-ambient #main::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+/* Slow, soft light drifting behind the conversation. */
+html.waux.waux-wall-ambient #main::before {
+  inset: -15%;
+  background:
+    radial-gradient(28% 24% at 72% 26%, color-mix(in srgb, var(--waux-primary) 26%, transparent), transparent 70%),
+    radial-gradient(26% 30% at 22% 78%, color-mix(in srgb, var(--waux-primary) 14%, transparent), transparent 72%),
+    radial-gradient(22% 22% at 46% 50%, color-mix(in srgb, var(--waux-fg) 6%, transparent), transparent 70%);
+  will-change: transform;
+  animation: waux-drift 40s ease-in-out infinite alternate;
+}
+/* A fine dot grid keeps the canvas from feeling empty. */
+html.waux.waux-wall-ambient #main::after {
+  inset: 0;
+  background: radial-gradient(color-mix(in srgb, var(--waux-fg) 9%, transparent) 1px, transparent 1.4px) 0 0 / 22px 22px;
+  mask-image: radial-gradient(120% 80% at 50% 40%, #000 30%, transparent 85%);
+}
+@keyframes waux-drift {
+  0% {
+    transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 4%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 6%, 0) rotate(-6deg) scale(1.02);
+  }
+}
+html.waux.waux-reduce-motion #main::before {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.waux #main::before {
+    animation: none !important;
+  }
+}
+
+/* ---- Privacy --------------------------------------------------------------------------- */
+/*
+  Privacy Shield is one switch (html.waux-p-*). Text is hidden as cipher (a
+  dot-matrix font, default) or blur; photos become cipher avatars; media is
+  frosted. Bubbles and chat cards always stay crisp.
+  A unit (message row, chat card, chat header) shows its real content while
+  it carries .waux-revealed, set from JS on hover or click
+  (engines/privacy/privacy.ts). html.waux-peek (hold Alt) shows everything.
+*/
+
+html.waux {
+  --waux-blur-px: 8px;
+}
+
+/* Cipher */
+html.waux.waux-style-cipher:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span[dir], span[dir] *, a):not(.waux-revealed *),
+html.waux.waux-style-cipher:not(.waux-peek).waux-p-msg :is([data-testid="last-msg-status"], [data-testid="last-msg-status"] *):not(.waux-revealed *),
+html.waux.waux-style-cipher:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], [data-testid="cell-frame-title"] *, #main header span[dir], #main header span[title], #main header span[dir] *, #main header span[title] *):not(.waux-revealed *) {
+  font-family: "WAUX Cipher" !important;
+  letter-spacing: 0 !important;
+  user-select: none;
+}
+
+/* Blur (text only) */
+html.waux.waux-style-blur:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] span[dir]:not(.waux-revealed *),
+html.waux.waux-style-blur:not(.waux-peek).waux-p-msg [data-testid="last-msg-status"]:not(.waux-revealed *),
+html.waux.waux-style-blur:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], #main header span[title], #main header span[dir]):not(.waux-revealed *) {
+  filter: blur(var(--waux-blur-px));
+  user-select: none;
+}
+
+/* Media: frosted. */
+html.waux:not(.waux-peek):is(.waux-p-media, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(img:not([src*="pps.whatsapp.net"]):not([data-plain-text]), video):not(.waux-revealed *) {
+  filter: blur(calc(var(--waux-blur-px) + 6px)) grayscale(1) brightness(0.75);
+  transition: filter 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Photos: replaced by a 3D character avatar (avatars.css, generated SVG),
+   painted on the <img> itself; object-position pushes the real pixels out. */
+html.waux:not(.waux-peek).waux-p-avatar :is([data-testid="cell-frame-container"] img, #main header img, img[src*="pps.whatsapp.net"]):not(.waux-revealed *) {
+  object-position: -9999px 0 !important;
+  background: var(--waux-av, var(--waux-av-0)) center / cover no-repeat !important;
+}
+/* Initials avatars (no photo) are text: cipher them too. */
+html.waux.waux-style-cipher:not(.waux-peek).waux-p-avatar [data-testid="cell-frame-container"] > :first-child span:not(.waux-revealed *) {
+  font-family: "WAUX Cipher" !important;
+}/* Decode: letters snap in from wide tracking with an ember afterglow. */
+@media (prefers-reduced-motion: no-preference) {
+  html.waux.waux-style-cipher:not(.waux-reduce-motion):is(.waux-p-msg, .waux-p-name, .waux-chat-blur) .waux-revealed :is(span[dir], [data-testid="cell-frame-title"], [data-testid="last-msg-status"]) {
+    animation: waux-decode 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+@keyframes waux-decode {
+  0% {
+    opacity: 0.25;
+    letter-spacing: 0.18em;
+    text-shadow: 0 0 10px var(--waux-primary);
+  }
+  60% {
+    opacity: 1;
+    letter-spacing: 0;
+  }
+  100% {
+    text-shadow: none;
+  }
+}

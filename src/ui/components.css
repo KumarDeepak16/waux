@@ -1,0 +1,359 @@
+/*
+  WAUX design system: Obsidian language.
+  Hairline structure, square-shouldered controls, one signal color,
+  depth from layered tinted shadows plus a 1px top highlight.
+  All values come from --waux-* tokens (engines/theme/compile.ts).
+*/
+
+.w-root {
+  font-family: var(--waux-font);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--waux-fg);
+  letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.w-root *,
+.w-root *::before,
+.w-root *::after {
+  box-sizing: border-box;
+}
+.w-root :is(button, input, textarea, select) {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+.w-root button {
+  cursor: pointer;
+}
+.w-root :focus-visible {
+  outline: 2px solid var(--waux-ring);
+  outline-offset: 2px;
+}
+
+.w-icon {
+  flex: none;
+  display: block;
+}
+
+.w-mono {
+  font-family: var(--waux-mono);
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+.w-label {
+  font: 500 10.5px/1.2 var(--waux-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--waux-fg-subtle);
+}
+.w-muted {
+  color: var(--waux-fg-muted);
+}
+
+/* ---- Buttons ------------------------------------------------------------ */
+
+.w-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: var(--waux-ctl);
+  padding: 0 12px;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-s2);
+  color: var(--waux-fg);
+  box-shadow: var(--waux-shadow-sm);
+  font-weight: 520;
+  font-size: 12.5px;
+  white-space: nowrap;
+  transition: background-color 140ms, border-color 140ms, color 140ms, transform 120ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 140ms;
+}
+.w-btn:hover {
+  background: var(--waux-s3);
+  border-color: var(--waux-border-strong);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+.w-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+.w-btn:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.w-btn--primary {
+  background: var(--waux-primary);
+  color: var(--waux-primary-fg);
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+.w-btn--primary:hover {
+  background: var(--waux-primary-hi);
+  border-color: transparent;
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+.w-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--waux-fg-muted);
+}
+.w-btn--ghost:hover {
+  background: var(--waux-s3);
+  border-color: transparent;
+  color: var(--waux-fg);
+  box-shadow: none;
+  transform: none;
+}
+.w-btn--danger:hover {
+  color: #f0645a;
+  border-color: color-mix(in srgb, #f0645a 50%, var(--waux-border));
+}
+.w-btn--icon {
+  width: var(--waux-ctl);
+  padding: 0;
+}
+.w-btn--sm {
+  height: 26px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+.w-btn--sm.w-btn--icon {
+  width: 26px;
+  padding: 0;
+}
+
+/* ---- Switch: square-shouldered, mechanical -------------------------------- */
+
+.w-switch {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: min(var(--waux-radius-sm), 6px);
+  background: var(--waux-muted);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: background-color 160ms, border-color 160ms;
+}
+.w-switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: min(calc(var(--waux-radius-sm) - 2px), 4px);
+  background: var(--waux-fg-muted);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1), background-color 160ms;
+}
+.w-switch[aria-checked="true"] {
+  background: var(--waux-primary);
+  border-color: transparent;
+}
+.w-switch[aria-checked="true"] .w-switch__knob {
+  transform: translateX(14px);
+  background: var(--waux-primary-fg);
+}
+.w-switch:disabled {
+  opacity: 0.4;
+}
+
+/* ---- Segmented ----------------------------------------------------------- */
+
+.w-seg {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-muted);
+}
+.w-seg__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: calc(var(--waux-ctl) - 8px);
+  padding: 0 10px;
+  border: 0;
+  border-radius: max(0px, calc(var(--waux-radius-sm) - 2px));
+  background: transparent;
+  color: var(--waux-fg-muted);
+  font-size: 12px;
+  font-weight: 520;
+  transition: background-color 140ms, color 140ms;
+}
+.w-seg__opt:hover {
+  color: var(--waux-fg);
+}
+.w-seg__opt[aria-checked="true"] {
+  background: var(--waux-card);
+  color: var(--waux-fg);
+  box-shadow: var(--waux-shadow-sm), 0 0 0 1px var(--waux-border);
+}
+
+/* ---- Inputs -------------------------------------------------------------- */
+
+.w-input,
+.w-textarea {
+  width: 100%;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-bg);
+  color: var(--waux-fg);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: border-color 140ms, box-shadow 140ms;
+}
+.w-input {
+  height: var(--waux-ctl);
+  padding: 0 10px;
+}
+.w-textarea {
+  padding: 9px 10px;
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.5;
+}
+.w-input::placeholder,
+.w-textarea::placeholder {
+  color: var(--waux-fg-subtle);
+}
+.w-input:focus,
+.w-textarea:focus {
+  outline: none;
+  border-color: var(--waux-primary);
+  box-shadow: 0 0 0 3px var(--waux-primary-soft);
+}
+.w-field {
+  display: grid;
+  gap: 6px;
+}
+.w-field > span {
+  font-size: 12px;
+  font-weight: 520;
+  color: var(--waux-fg-muted);
+}
+
+.w-range {
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+}
+.w-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--waux-primary) var(--fill, 50%), var(--waux-s3) var(--fill, 50%));
+}
+.w-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 2px solid var(--waux-primary);
+  border-radius: 3px;
+  background: var(--waux-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Keys --------------------------------------------------------------- */
+
+.w-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--waux-border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--waux-s2);
+  color: var(--waux-fg-muted);
+  font: 500 10.5px/1 var(--waux-mono);
+}
+
+/* ---- Rows / cards -------------------------------------------------------- */
+
+.w-card {
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-lg);
+  background: var(--waux-card);
+  box-shadow: var(--waux-shadow-md);
+}
+
+.w-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 0;
+}
+.w-row + .w-row {
+  border-top: 1px solid var(--waux-border);
+}
+.w-row__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-s2);
+  color: var(--waux-fg-muted);
+}
+.w-row__text {
+  flex: 1;
+  min-width: 0;
+}
+.w-row__label {
+  font-weight: 540;
+}
+.w-row__hint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--waux-fg-muted);
+}
+.w-row__control {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.w-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--waux-fg-muted);
+}
+.w-empty__glyph {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px dashed var(--waux-border-strong);
+  border-radius: var(--waux-radius);
+  color: var(--waux-fg-subtle);
+}
+.w-empty strong {
+  color: var(--waux-fg);
+  font-weight: 560;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-root *,
+  .w-root *::before,
+  .w-root *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

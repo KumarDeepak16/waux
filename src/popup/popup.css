@@ -1,0 +1,193 @@
+@import "../ui/components.css";
+@import "../ui/fonts.css";
+
+html,
+body {
+  margin: 0;
+  background: var(--waux-bg);
+}
+
+.pop {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 248px;
+  padding: 14px 14px 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 60% at 50% 38%, var(--waux-primary-soft), transparent 70%),
+    var(--waux-bg);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.pop.is-ready {
+  opacity: 1;
+}
+.pop.is-off {
+  background: var(--waux-bg);
+}
+
+.pop__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.pop__logo {
+  display: grid;
+  transition: filter 300ms;
+}
+.is-off .pop__logo {
+  filter: grayscale(1) opacity(0.6);
+}
+.pop__name {
+  font-size: 14px;
+  font-weight: 680;
+  letter-spacing: 0.06em;
+}
+.pop__ver {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--waux-fg-subtle);
+}
+
+/* The power key: a square, brutalist button that presses in. */
+.power {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  margin: 6px 0 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.power__key {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: calc(var(--waux-radius-lg) + 4px);
+  background: var(--waux-card);
+  color: var(--waux-fg-subtle);
+  box-shadow: 4px 4px 0 var(--waux-hard);
+  transition: background-color 260ms, color 260ms, border-color 260ms, transform 140ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 140ms;
+}
+.power:hover .power__key {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--waux-hard);
+}
+.power:active .power__key {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--waux-hard);
+}
+.power:focus-visible {
+  outline: none;
+}
+.power:focus-visible .power__key {
+  outline: 2px solid var(--waux-ring);
+  outline-offset: 3px;
+}
+.is-on .power__key {
+  border-color: transparent;
+  background: var(--waux-primary);
+  color: var(--waux-primary-fg);
+  box-shadow: 4px 4px 0 var(--waux-hard), 0 0 32px -4px var(--waux-primary);
+}
+.is-on .power:hover .power__key {
+  box-shadow: 6px 6px 0 var(--waux-hard), 0 0 40px -4px var(--waux-primary);
+}
+.power__key .w-icon {
+  transition: transform 360ms cubic-bezier(0.3, 1.5, 0.4, 1);
+}
+.is-on .power__key .w-icon {
+  transform: rotate(180deg);
+}
+/* A ring that breathes while WAUX is on. */
+.power__ring {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--waux-primary);
+  border-radius: calc(var(--waux-radius-lg) + 10px);
+  opacity: 0;
+}
+.is-on .power__ring {
+  animation: ring 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+@keyframes ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.82);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+.pop__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--waux-fg-muted);
+}
+.pop__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--waux-fg-subtle);
+  transition: background-color 260ms, box-shadow 260ms;
+}
+.is-on .pop__dot {
+  background: var(--waux-primary);
+  box-shadow: 0 0 8px var(--waux-primary);
+}
+
+.pop__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--waux-border);
+}
+.pop__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--waux-radius-sm);
+  background: none;
+  color: var(--waux-fg-muted);
+  font-size: 12px;
+  font-weight: 540;
+  transition: color 140ms, border-color 140ms, background-color 140ms;
+}
+.pop__link:hover {
+  border-color: var(--waux-border-strong);
+  background: var(--waux-s2);
+  color: var(--waux-fg);
+}
+.pop__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--waux-fg-subtle);
+}
+.pop__hint .w-kbd {
+  height: 18px;
+  min-width: 18px;
+  font-size: 10px;
+}

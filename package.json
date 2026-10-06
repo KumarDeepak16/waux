@@ -1,0 +1,31 @@
+{
+  "name": "waux",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WAUX: a premium, private, keyboard-first layer for WhatsApp Web.",
+  "license": "MIT",
+  "author": "Deepak Kumar (https://1619.in)",
+  "homepage": "https://github.com/KumarDeepak16/waux#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/KumarDeepak16/waux.git" },
+  "bugs": { "url": "https://github.com/KumarDeepak16/waux/issues" },
+  "type": "module",
+  "scripts": {
+    "dist": "npm test && npm run typecheck && node scripts/build.mjs --zip",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "icons": "node scripts/icons.mjs",
+    "test": "node --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify.mjs"
+  },
+  "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "@types/chrome": "*",
+    "@types/node": "^26.6.4",
+    "esbuild": "^0.28.2",
+    "geist": "^1.7.2",
+    "playwright": "*",
+    "preact": "^10",
+    "typescript": "*"
+  }
+}

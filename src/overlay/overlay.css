@@ -1,0 +1,785 @@
+:host {
+  all: initial;
+}
+
+.o-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 14vh 16px 16px;
+  background: var(--waux-scrim);
+  animation: o-fade 140ms ease-out;
+}
+
+.o-panel {
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius-lg);
+  background: var(--waux-glass);
+  -webkit-backdrop-filter: blur(var(--waux-blur)) saturate(140%);
+  backdrop-filter: blur(var(--waux-blur)) saturate(140%);
+  box-shadow: var(--waux-shadow-lg);
+  color: var(--waux-fg);
+  overflow: hidden;
+  animation: o-rise 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---- Palette ------------------------------------------------------------- */
+
+.o-palette {
+  width: min(620px, 100%);
+}
+.o-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid var(--waux-border);
+  color: var(--waux-fg-subtle);
+}
+.o-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--waux-fg);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.o-search__input:focus {
+  outline: none;
+}
+.o-search__input::placeholder {
+  color: var(--waux-fg-subtle);
+}
+
+.o-list {
+  max-height: min(400px, 52vh);
+  overflow-y: auto;
+  padding: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--waux-border-strong) transparent;
+}
+.o-group {
+  padding: 12px 10px 6px;
+}
+.o-group:first-child {
+  padding-top: 6px;
+}
+
+.o-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 42px;
+  padding: 6px 10px;
+  border-radius: var(--waux-radius-sm);
+  cursor: pointer;
+  user-select: none;
+}
+.o-item[aria-selected="true"] {
+  background: var(--waux-s3);
+}
+.o-item[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--waux-primary);
+}
+.o-item__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-s2);
+  color: var(--waux-fg-muted);
+  box-shadow: var(--waux-shadow-sm);
+}
+.o-item[aria-selected="true"] .o-item__icon {
+  color: var(--waux-primary);
+  border-color: var(--waux-border-strong);
+}
+.o-item__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.o-item__label {
+  font-weight: 530;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.o-item__hint {
+  font-size: 12px;
+  color: var(--waux-fg-subtle);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.o-state {
+  flex: none;
+  padding: 2px 7px;
+  border: 1px solid var(--waux-border);
+  border-radius: 4px;
+  color: var(--waux-fg-subtle);
+  font: 500 10.5px/1.4 var(--waux-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.o-state.is-on {
+  border-color: transparent;
+  background: var(--waux-primary-soft);
+  color: var(--waux-primary);
+}
+.o-short {
+  flex: none;
+  color: var(--waux-primary);
+}
+
+.o-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--waux-border);
+  background: color-mix(in srgb, var(--waux-bg) 35%, transparent);
+  color: var(--waux-fg-subtle);
+  font-size: 11.5px;
+}
+.o-foot > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.o-foot .w-kbd {
+  height: 18px;
+  min-width: 18px;
+  font-size: 10px;
+}
+.o-foot__end {
+  margin-left: auto;
+}
+
+/* ---- Sheets (chat, hidden) ---------------------------------------------- */
+
+.o-sheet {
+  width: min(420px, 100%);
+}
+.o-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 12px 14px 18px;
+  border-bottom: 1px solid var(--waux-border);
+}
+.o-sheet__title {
+  margin-top: 6px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.o-head-actions {
+  display: flex;
+  gap: 4px;
+}
+.o-sheet__body {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px 18px;
+}
+.o-field-label {
+  font-size: 12px;
+  font-weight: 540;
+  color: var(--waux-fg-muted);
+}
+
+.o-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.o-swatch {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--sw) 60%, #000);
+  border-radius: var(--waux-radius-sm);
+  background: var(--sw);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 120ms;
+}
+.o-swatch:hover {
+  transform: translateY(-1px);
+}
+.o-swatch[aria-checked="true"] {
+  outline: 2px solid var(--waux-fg);
+  outline-offset: 2px;
+}
+.o-swatch--none {
+  --sw: var(--waux-card);
+  border-color: var(--waux-border-strong);
+  background: linear-gradient(135deg, transparent 45%, var(--waux-border-strong) 45%, var(--waux-border-strong) 55%, transparent 55%), var(--waux-card);
+}
+
+.o-rows {
+  display: grid;
+  border-top: 1px solid var(--waux-border);
+}
+.o-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--waux-border);
+  cursor: pointer;
+}
+.o-toggle:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.o-toggle > span {
+  display: grid;
+  gap: 2px;
+}
+.o-toggle strong {
+  font-weight: 540;
+}
+.o-toggle small {
+  font-size: 12px;
+  color: var(--waux-fg-muted);
+}
+
+.o-lock {
+  display: grid;
+  justify-items: stretch;
+  gap: 10px;
+  padding: 22px 18px 18px;
+}
+.o-lock__glyph {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius);
+  background: var(--waux-s2);
+  color: var(--waux-primary);
+  box-shadow: var(--waux-shadow-sm);
+}
+.o-pin {
+  text-align: center;
+  font-family: var(--waux-mono);
+  font-size: 18px;
+  letter-spacing: 0.4em;
+}
+.o-err {
+  min-height: 16px;
+  font-size: 12px;
+  color: #f0645a;
+}
+
+.o-hidden {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--waux-border);
+  border-radius: var(--waux-radius);
+  background: var(--waux-bg);
+  overflow: hidden;
+}
+.o-hidden__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 10px;
+}
+.o-hidden__row + .o-hidden__row {
+  border-top: 1px solid var(--waux-border);
+}
+.o-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-s3);
+  color: var(--waux-fg-muted);
+  font: 600 12px/1 var(--waux-mono);
+}
+.o-hidden__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 530;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.o-wide {
+  width: 100%;
+}
+.o-picker {
+  display: grid;
+  gap: 8px;
+}
+.o-picker__form {
+  display: flex;
+  gap: 6px;
+}
+.o-picker__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.o-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 9px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius-sm);
+  background: var(--waux-s2);
+  color: var(--waux-fg);
+  font-size: 12px;
+  font-weight: 520;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: transform 140ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 140ms, border-color 140ms;
+}
+.o-chip:hover {
+  border-color: var(--waux-primary);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+.o-chip__tag {
+  padding: 0 5px;
+  border-radius: 3px;
+  background: var(--waux-primary-soft);
+  color: var(--waux-primary);
+  font: 600 9.5px/1.6 var(--waux-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.o-note {
+  display: flex;
+  gap: 8px;
+  padding: 11px 18px 13px;
+  border-top: 1px solid var(--waux-border);
+  background: color-mix(in srgb, var(--waux-bg) 35%, transparent);
+  color: var(--waux-fg-subtle);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.o-note .w-icon {
+  margin-top: 2px;
+}
+.o-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--waux-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ---- Suggest ------------------------------------------------------------- */
+
+.o-suggest {
+  position: fixed;
+  z-index: 2147483001;
+  padding-top: 6px;
+}
+.o-suggest .o-item {
+  margin: 0 6px;
+}
+.o-suggest .o-foot {
+  margin-top: 6px;
+}
+
+/* ---- Toast --------------------------------------------------------------- */
+
+.o-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 2147483002;
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius);
+  background: var(--waux-card);
+  box-shadow: var(--waux-shadow-lg);
+  color: var(--waux-fg);
+  font-size: 12.5px;
+  font-weight: 520;
+  animation: o-rise 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.o-toast {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.o-toast__undo {
+  padding: 3px 9px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: 5px;
+  background: var(--waux-s3);
+  color: var(--waux-primary);
+  font: 600 11px/1.4 var(--waux-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.o-toast__undo:hover {
+  box-shadow: 2px 2px 0 var(--waux-hard);
+  transform: translate(-1px, -1px);
+}
+
+/* ---- Dock: WAUX keys on WhatsApp's nav rail ---------------------------------- */
+
+.o-dock {
+  position: fixed;
+  /* Above WhatsApp's rail, below its dialogs. */
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+  font-family: var(--waux-font);
+}
+.o-dock__key {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--waux-radius-sm);
+  background: transparent;
+  color: var(--waux-fg-muted);
+  cursor: pointer;
+  transition: background-color 140ms, color 140ms, transform 120ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 140ms, border-color 140ms;
+  animation: o-key-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+.o-dock__key:hover {
+  border-color: var(--waux-border-strong);
+  background: var(--waux-s2);
+  color: var(--waux-fg);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+.o-dock__key:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+.o-dock__key:focus-visible {
+  outline: 2px solid var(--waux-ring);
+  outline-offset: 2px;
+}
+.o-dock__key.is-on {
+  border-color: transparent;
+  background: var(--waux-primary);
+  color: var(--waux-primary-fg);
+  box-shadow: 2px 2px 0 var(--waux-hard);
+}
+.o-dock__mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--waux-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
+  transition: transform 200ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.o-dock__brand:hover .o-dock__mark {
+  transform: rotate(-8deg) scale(1.06);
+}
+.o-dock__rule {
+  width: 22px;
+  height: 1px;
+  margin-top: 4px;
+  background: var(--waux-border-strong);
+}
+/* Tooltip to the right of each key. */
+.o-dock__key::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  padding: 5px 9px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: 5px;
+  background: var(--waux-card);
+  box-shadow: 2px 2px 0 var(--waux-hard);
+  color: var(--waux-fg);
+  font: 500 11.5px/1.2 var(--waux-font);
+  white-space: pre;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  transition: opacity 120ms, transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.o-dock__key:hover::after,
+.o-dock__key:focus-visible::after {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+@keyframes o-key-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+/* ---- Start panel ---------------------------------------------------------------- */
+
+.o-welcome {
+  position: fixed;
+  /* Above WhatsApp's page, below its menus and dialogs. */
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(50% 40% at 50% 38%, var(--waux-primary-soft), transparent 70%),
+    linear-gradient(var(--waux-border) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--waux-border) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--waux-bg);
+  font-family: var(--waux-font);
+  color: var(--waux-fg);
+  animation: o-fade 240ms ease-out;
+}
+.o-welcome::after {
+  /* A slow scan line: the panel is alive, not a poster. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, var(--waux-primary-soft) 50%, transparent);
+  background-size: 100% 220px;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: o-scan 7s linear infinite;
+}
+.o-welcome__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 560px;
+  padding: 24px;
+  text-align: center;
+}
+.o-welcome__logo {
+  margin-bottom: 6px;
+  animation: o-drop 520ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  transition: transform 220ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.o-welcome__logo:hover {
+  transform: rotate(-6deg) scale(1.05);
+}
+.o-welcome__title {
+  margin: 0;
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 680;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  animation: o-rise 360ms 80ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.o-welcome__title em {
+  font-style: normal;
+  color: var(--waux-primary);
+}
+.o-welcome__sub {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--waux-fg-muted);
+  font-size: 14px;
+  line-height: 1.55;
+  animation: o-rise 360ms 140ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.o-welcome__keys {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+.o-tile {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--waux-border-strong);
+  border-radius: var(--waux-radius);
+  background: var(--waux-card);
+  box-shadow: 3px 3px 0 var(--waux-hard);
+  color: var(--waux-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 180ms, border-color 160ms;
+  animation: o-rise 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(200ms + var(--i, 0) * 60ms);
+}
+.o-tile:hover {
+  border-color: var(--waux-primary);
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--waux-primary);
+}
+.o-tile:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+.o-tile__keys {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+}
+.o-tile__label {
+  font-size: 13px;
+  font-weight: 560;
+}
+.o-welcome__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  animation: o-rise 380ms 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.o-welcome__foot {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--waux-fg-subtle);
+  font-size: 12px;
+}
+
+/* ---- Focus Mode edge tab --------------------------------------------------------- */
+
+.o-edge {
+  position: fixed;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px;
+  border: 1px solid var(--waux-border-strong);
+  border-left: 0;
+  border-radius: 0 var(--waux-radius-sm) var(--waux-radius-sm) 0;
+  background: var(--waux-card);
+  box-shadow: 3px 3px 0 var(--waux-hard);
+  color: var(--waux-fg-muted);
+  font: 600 10.5px/1 var(--waux-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: padding 180ms cubic-bezier(0.3, 0.7, 0.2, 1), color 140ms, box-shadow 160ms, background-color 140ms;
+  animation: o-edge-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.o-edge span {
+  writing-mode: vertical-rl;
+}
+.o-edge:hover {
+  padding-left: 12px;
+  background: var(--waux-primary);
+  color: var(--waux-primary-fg);
+  box-shadow: 4px 4px 0 var(--waux-hard);
+}
+
+@keyframes o-scan {
+  from {
+    background-position: 0 -220px;
+  }
+  to {
+    background-position: 0 calc(100% + 220px);
+  }
+}
+@keyframes o-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) rotate(-10deg) scale(0.9);
+  }
+}
+@keyframes o-edge-in {
+  from {
+    opacity: 0;
+    transform: translate(-8px, -50%);
+  }
+}
+
+@keyframes o-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes o-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+}
+.o-toast {
+  animation-name: o-toast;
+}
+@keyframes o-toast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .o-panel {
+    background: var(--waux-card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+:host(.reduce-motion) * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
