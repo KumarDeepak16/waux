@@ -17,7 +17,11 @@
 </p>
 
 <p align="center">
-  <img src="store/marquee-1400x560.png" alt="WAUX" width="820">
+  <a href="https://waux.1619.in"><b>waux.1619.in</b></a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/shot-shield.png" alt="WhatsApp Web with WAUX: chat cards, 3D avatars, cipher text and one decoded message" width="860">
 </p>
 
 ---
@@ -44,10 +48,14 @@
 - **Focus Mode.** Hide the chat list while you work in one conversation.
 - **Declutter.** Hide Status, Channels, Communities, Calls, Meta AI and the "Get WhatsApp for Windows" banner.
 
-<p align="center">
-  <img src="store/screenshot-settings-1280x800.png" alt="Settings" width="410">
-  <img src="store/screenshot-theme-1280x800.png" alt="Theme Studio" width="410">
-</p>
+## Screenshots
+
+| | |
+|---|---|
+| <img src="docs/assets/shot-chat.png" alt="WAUX theme on WhatsApp Web"><br><sub>Obsidian theme, chat cards and ambient wallpaper</sub> | <img src="docs/assets/shot-palette.png" alt="Command palette"><br><sub>Command palette: actions, chats and quick messages</sub> |
+| <img src="docs/assets/shot-theme.png" alt="Theme Studio"><br><sub>Theme Studio with live preview</sub> | <img src="docs/assets/shot-settings.png" alt="Settings"><br><sub>Settings: Privacy Shield, chat list, interface, shortcuts</sub> |
+
+<p align="center"><img src="docs/assets/shot-popup.png" alt="Toolbar popup" width="220"><br><sub>Toolbar popup: one key to switch WAUX on or off</sub></p>
 
 ## Install
 
@@ -119,6 +127,7 @@ npm test           # unit tests: theme engine, importers, quick messages, sideba
 npm run typecheck
 npm run icons      # re-render icons and store tiles from assets/icon.svg
 npm run verify     # load dist/ in Chromium and check popup, Studio, WhatsApp and a structural mock
+npm run site       # regenerate the landing page assets in docs/ (served at waux.1619.in)
 ```
 
 ```
@@ -133,7 +142,8 @@ src/
   popup/       toolbar popup
   studio/      Settings, Theme Studio, Quick messages, Data, About
   ui/          design system: tokens, components, icons, logo
-scripts/       build, cipher font and avatar generators, icon renderer, verification
+scripts/       build, cipher font and avatar generators, icon renderer, verification, site assets
+docs/          landing page (GitHub Pages, waux.1619.in)
 ```
 
 **How it survives WhatsApp updates.** WhatsApp styles itself with its own design tokens (`--WDS-*`). WAUX compiles your tokens into a full palette and overrides those variables, so most of the interface follows without touching WhatsApp's markup. Structural styling uses only stable hooks (ids, `data-testid`, ARIA roles, `data-icon`), never hashed class names, and lives in `src/adapter` and `src/content/skin.css`.

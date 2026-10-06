@@ -328,7 +328,14 @@ html.waux:not(.waux-peek).waux-p-avatar :is([data-testid="cell-frame-container"]
   object-position: -9999px 0 !important;
   background: var(--waux-av, var(--waux-av-0)) center / cover no-repeat !important;
 }
-/* Initials avatars (no photo) are text: cipher them too. */
+/* Avatars with no photo (initials, default silhouette): same 3D character. */
+html.waux:not(.waux-peek).waux-p-avatar [data-waux-initials]:not(.waux-revealed *) {
+  background: var(--waux-av, var(--waux-av-0)) center / cover no-repeat !important;
+}
+html.waux:not(.waux-peek).waux-p-avatar [data-waux-initials]:not(.waux-revealed *) > * {
+  visibility: hidden !important;
+}
+/* Initials avatars (no photo) are text: cipher them too, as a fallback. */
 html.waux.waux-style-cipher:not(.waux-peek).waux-p-avatar [data-testid="cell-frame-container"] > :first-child span:not(.waux-revealed *) {
   font-family: "WAUX Cipher" !important;
 }/* Decode: letters snap in from wide tracking with an ember afterglow. */

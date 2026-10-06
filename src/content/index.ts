@@ -5,10 +5,10 @@
 import { h, render } from 'preact';
 import { insertText, replaceBeforeCaret, textBeforeCaret } from '../adapter/composer.ts';
 import { WhatsAppAdapter } from '../adapter/whatsapp.ts';
-import { normalizeName, probeHooks } from '../adapter/selectors.ts';
+import { chatRows, normalizeName, probeHooks } from '../adapter/selectors.ts';
 import { downloadText, layoutReport, navAnchor } from '../adapter/report.ts';
 import { declutterFlags, installReveal, privacyFlags } from '../engines/privacy/privacy.ts';
-import { chatListVisible, hideDividers, introShowing, markColumns, markInputs, markWallpaper, tagNav, tagPromo } from '../adapter/markers.ts';
+import { chatListVisible, hideDividers, introShowing, markColumns, markInitials, markInputs, markWallpaper, tagNav, tagPromo } from '../adapter/markers.ts';
 import { shortcutToken, templatesForShortcut } from '../engines/quick/search.ts';
 import { chatAccentCss, whatsappCss } from '../engines/theme/compile.ts';
 import { Overlay, type Actions, type UiState, type View } from '../overlay/Overlay.tsx';
@@ -346,6 +346,7 @@ document.addEventListener(
   () => {
     life.abort();
     clearInterval(diagTimer);
+    initialsObs.disconnect();
     adapter.stop();
     disposeReveal?.();
     host?.remove();
@@ -380,8 +381,31 @@ const diagTimer = window.setInterval(() => {
   chrome.storage.local.set({ diag: { ...probe, at: Date.now() } }).catch(() => {});
 }, 1000);
 
+// Initials avatars: watch the chat list only while photos are hidden.
+let initialsQueued = false;
+const initialsObs = new MutationObserver(() => {
+  if (initialsQueued) return;
+  initialsQueued = true;
+  requestAnimationFrame(() => {
+    initialsQueued = false;
+    markInitials(chatRows());
+  });
+});
+let initialsPane: Element | null = null;
+function watchInitials() {
+  const pane = root.classList.contains('waux-p-avatar') ? document.getElementById('pane-side') : null;
+  if (pane === initialsPane) return;
+  initialsObs.disconnect();
+  initialsPane = pane;
+  if (pane) {
+    initialsObs.observe(pane, { childList: true, subtree: true });
+    markInitials(chatRows());
+  }
+}
+
 /** Marker passes that only matter when their feature is on. */
 function scan() {
+  watchInitials();
   const d = state.settings.declutter;
   if (d.communities || d.channels || d.status || d.calls || d.metaAi) tagNav(d.metaAi);
   if (d.promo) tagPromo();

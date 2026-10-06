@@ -27,7 +27,7 @@
       body { margin: 0; font: 14.2px "Segoe UI", sans-serif; background: var(--WDS-background-wash-plain); color: var(--WDS-content-default); overflow: hidden; }
       button { all: unset; cursor: pointer; }
       .shell { display: flex; height: 100vh; }
-      .nav { width: 64px; flex: none; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 0; background: var(--WDS-surface-default); border-right: 1px solid var(--WDS-lines-divider); box-sizing: border-box; }
+      .nav { position: relative; z-index: 100; width: 64px; flex: none; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 0; background: var(--WDS-surface-default); border-right: 1px solid var(--WDS-lines-divider); box-sizing: border-box; }
       .nav section { display: flex; flex-direction: column; align-items: center; gap: 10px; }
       .nav button { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--WDS-content-deemphasized); }
       .nav button[aria-pressed="true"] { background: var(--WDS-surface-highlight); color: var(--WDS-content-default); }
@@ -113,24 +113,25 @@
         return `data:image/svg+xml,${encodeURIComponent(svg)}`;
       };
       const chats = [
-        ['Ines Duarte', 'Sent the revised floor plan, page 3 has the changes', '09:41', 2],
-        ['Studio Halden', 'Kofi: Moodboard v4 is up', '09:12', 0],
-        ['Priya Raman', 'Perfect, see you at 6', '18:05', 0],
-        ['Tomás Vidal', 'Voice message (0:42)', 'Mon', 0],
-        ['Core Team', 'Amarjeet: After the partner name is changed, we ship', 'Mon', 5],
-        ['Mum', 'Call me when you land', 'Sun', 0],
-        ['Rohan Mehta', 'Invoice attached for September', 'Sat', 0],
-        ['Gym Buddies', 'Leg day at 7, no excuses', 'Fri', 0],
-        ['Ana Lima', 'Thanks for the intro!', 'Thu', 0],
+        ['Anchal', 'Sent the revised floor plan, page 3 has the changes', '09:41', 2],
+        ['Amarjeet', 'Partner name is updated, we can ship today', '09:12', 0],
+        ['Nisha', 'Perfect, see you at 6', '18:05', 0],
+        ['Vivek', 'Voice message (0:42)', 'Mon', 0],
+        ['Om', 'Meeting moved to 4 pm, same room', 'Mon', 5],
+        ['Sahil', 'Call me when you land', 'Sun', 0],
+        ['Gourav', 'Invoice attached for September', 'Sat', 0],
+        ['Akhil', 'Leg day at 7, no excuses', 'Fri', 0],
+        ['Parveen', 'Thanks for the intro!', 'Thu', 0],
+        ['Esha', 'Sharing the slides tonight', 'Wed', 0],
       ];
       const list = document.querySelector('[data-testid="chat-list"]');
       list.style.height = `${chats.length * 72}px`;
       chats.forEach(([name, last, time, unread], i) => {
         list.insertAdjacentHTML(
           'beforeend',
-          `<div role="row" data-testid="list-item-${i}" aria-selected="${name === 'Priya Raman' && !location.search.includes('nochat')}" style="height:72px;transform:translateY(${i * 72}px)">
+          `<div role="row" data-testid="list-item-${i}" aria-selected="${name === 'Nisha' && !location.search.includes('nochat')}" style="height:72px;transform:translateY(${i * 72}px)">
             <div role="gridcell"><div data-testid="cell-frame-container" style="height:72px">
-              <div class="av"><img src="${avatar(i + 1)}" alt=""></div>
+              ${i === 6 ? '<div class="av" style="display:grid;place-items:center;background:#3b2f4a;color:#e7c8ff;font-weight:600">RM</div>' : `<div class="av"><img src="${avatar(i + 1)}" alt=""></div>`}
               <div class="cell-text">
                 <div class="cell-row"><div data-testid="cell-frame-title"><span dir="auto" title="${name}">${name}</span></div><span class="time">${time}</span></div>
                 <div class="cell-row"><span data-testid="last-msg-status"><span dir="ltr">${last}</span></span>${unread ? `<span data-testid="icon-unread-count">${unread}</span>` : ''}</div>
@@ -145,7 +146,7 @@
         content.innerHTML = `<div class="intro"><div class="intro-card"><h2>Download WhatsApp for Windows</h2><p>Get extra features like voice and video calling.</p><a href="https://www.whatsapp.com/download">Download</a></div></div>`;
       } else {
         const msgs = [
-          [false, 'Are we still on for the walkthrough tomorrow?', '18:02', 'Priya'],
+          [false, 'Are we still on for the walkthrough tomorrow?', '18:02', 'Nisha'],
           [true, 'Yes. I booked the 6pm slot, the agent will meet us at the gate.', '18:04'],
           [false, 'Perfect, see you at 6', '18:05'],
           [true, 'I will bring the measurements and the signed draft.', '18:06'],
@@ -154,7 +155,7 @@
         ];
         content.innerHTML = `<div id="main">
           <header><div class="av"><img src="${avatar(3)}" alt=""></div>
-            <div class="head-text"><span data-testid="conversation-info-header-chat-title"><span dir="auto">Priya Raman</span></span><span class="head-sub" title="online">online</span></div></header>
+            <div class="head-text"><span data-testid="conversation-info-header-chat-title"><span dir="auto">Nisha</span></span><span class="head-sub" title="online">online</span></div></header>
           <div class="wall" style="position:absolute;inset:60px 0 76px;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%223%22 fill=%22%23ffffff10%22/%3E%3C/svg%3E');pointer-events:none"></div><div class="msgs" role="application" style="position:relative"><div class="day">Today</div>${msgs
             .map(
               ([out, text, time, sender], i) =>

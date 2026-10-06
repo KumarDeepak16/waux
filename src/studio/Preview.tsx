@@ -5,11 +5,11 @@ import type { Scheme, Theme } from '../shared/types.ts';
 import { Icon } from '../ui/icons.tsx';
 
 const CHATS = [
-  { name: 'Ines Duarte', last: 'Sent the revised floor plan, page 3 has the changes', time: '09:41', unread: 2 },
-  { name: 'Studio Halden', last: 'Kofi: Moodboard v4 is up', time: '09:12' },
-  { name: 'Priya Raman', last: 'Perfect, see you at 6', time: '18:05', active: true },
-  { name: 'Tomás Vidal', last: 'Voice message (0:42)', time: 'Mon' },
-  { name: 'Mum', last: 'Call me when you land', time: 'Sun' },
+  { name: 'Anchal', last: 'Sent the revised floor plan, page 3 has the changes', time: '09:41', unread: 2 },
+  { name: 'Amarjeet', last: 'Partner name is updated, we can ship today', time: '09:12' },
+  { name: 'Nisha', last: 'Perfect, see you at 6', time: '18:05', active: true },
+  { name: 'Vivek', last: 'Voice message (0:42)', time: 'Mon' },
+  { name: 'Sahil', last: 'Call me when you land', time: 'Sun' },
 ];
 
 const MESSAGES = [
@@ -53,9 +53,9 @@ export function Preview({ theme, scheme }: { theme: Theme; scheme: Scheme }) {
       </div>
       <div class="pv__main">
         <div class="pv__head">
-          <span class="pv__avatar">P</span>
+          <span class="pv__avatar">N</span>
           <span class="pv__head-text">
-            <span class="pv__chat-name">Priya Raman</span>
+            <span class="pv__chat-name">Nisha</span>
             <span class="pv__sub">online</span>
           </span>
         </div>

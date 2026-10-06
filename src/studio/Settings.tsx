@@ -67,7 +67,7 @@ export function SettingsSection({ state, update }: Page) {
 
         <div class="blur-demo">
           <div class={`privacy-sample is-${p.style}`} style={{ '--sample-blur': `${p.strength}px` }}>
-            <span class="privacy-sample__name">Ines Duarte</span>
+            <span class="privacy-sample__name">Anchal</span>
             <span class="privacy-sample__text">Sent the revised floor plan, page 3 has the changes</span>
             <span class="privacy-sample__hint w-mono">Hover to read</span>
           </div>

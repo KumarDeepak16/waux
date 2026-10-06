@@ -463,8 +463,8 @@
 
 .o-dock {
   position: fixed;
-  /* Above WhatsApp's rail, below its dialogs. */
-  z-index: 3;
+  /* WhatsApp's rail sits in its own stacking layer; the dock must clear it. */
+  z-index: 2147482990;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -693,7 +693,7 @@
 
 .o-edge {
   position: fixed;
-  z-index: 3;
+  z-index: 2147482985;
   display: flex;
   flex-direction: column;
   align-items: center;

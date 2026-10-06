@@ -153,6 +153,12 @@ const avatar = await mock.evaluate(() => {
   return { pos: cs.objectPosition, bg: cs.backgroundImage.startsWith('url("data:image/svg') };
 });
 check('Mock: photos become 3D avatars', avatar.pos.startsWith('-9999px') && avatar.bg, JSON.stringify(avatar));
+await mock.waitForTimeout(5200);
+const initials = await mock.evaluate(() => {
+  const el = document.querySelector('[data-waux-initials]');
+  return el ? getComputedStyle(el).backgroundImage.startsWith('url("data:image/svg') : false;
+});
+check('Mock: initials avatars become 3D avatars', initials);
 const wall = await mock.evaluate(() => {
   const el = document.querySelector('[data-waux-wallpaper]');
   return { marked: !!el, opacity: el ? getComputedStyle(el).opacity : null, ambient: getComputedStyle(document.getElementById('main'), '::before').animationName };
@@ -199,7 +205,7 @@ await mock.screenshot({ path: path.join(shots, 'mock-focus.png') });
 await setSettings({ focus: false });
 
 // Hide from sidebar + declutter
-await sw.evaluate(() => chrome.storage.local.set({ vault: { hidden: ['Studio Halden'], lock: null } }));
+await sw.evaluate(() => chrome.storage.local.set({ vault: { hidden: ['Amarjeet'], lock: null } }));
 await setSettings({ declutter: { metaAi: true, communities: true, promo: true } });
 await mock.waitForTimeout(1500);
 const layout = await mock.evaluate(() => ({

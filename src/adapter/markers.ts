@@ -168,6 +168,29 @@ export function hideDividers(x: number) {
   }
 }
 
+/**
+ * Avatars with no photo (initials or the default silhouette) have no <img> to
+ * swap. Mark their painted circle so CSS can draw a 3D character on it.
+ */
+export function markInitials(rows: Element[]) {
+  for (const row of rows) {
+    const col = row.querySelector('[data-testid="cell-frame-container"]')?.firstElementChild;
+    if (!col) continue;
+    const marked = col.querySelector('[data-waux-initials]') ?? (col.hasAttribute('data-waux-initials') ? col : null);
+    if (col.querySelector('img')) {
+      marked?.removeAttribute('data-waux-initials');
+      continue;
+    }
+    if (marked) continue;
+    const circle = [col, ...col.querySelectorAll('div, span')].find((el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return r.width >= 24 && r.width <= 80 && Math.abs(r.width - r.height) < 4 && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent';
+    });
+    circle?.setAttribute('data-waux-initials', '');
+  }
+}
+
 /** WhatsApp's doodle wallpaper layer inside the open chat. */
 export function markWallpaper() {
   const main = document.getElementById('main');
