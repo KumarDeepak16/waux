@@ -256,6 +256,22 @@ await mock.screenshot({ path: path.join(shots, 'mock-welcome.png') });
 await sw.evaluate(() => chrome.storage.local.set({ vault: { hidden: [], lock: null } }));
 await setSettings({ declutter: { metaAi: false, communities: false } });
 
+// Attach to a tab that is already loaded, as happens on install / update.
+// (A start-up ordering bug once crashed the script only in this path.)
+await setSettings({ shield: true, privacy: { avatars: true, messages: true } });
+await sw.evaluate(async () => {
+  const tabs = await chrome.tabs.query({ url: 'https://web.whatsapp.com/*' });
+  const tab = tabs.find((t) => t.url.includes('waux-mock'));
+  await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
+});
+await mock.waitForTimeout(1200);
+await mock.keyboard.press('Control+k');
+await mock.waitForTimeout(400);
+const attached = await mock.evaluate(() => document.elementFromPoint(innerWidth / 2, innerHeight * 0.2)?.tagName);
+check('Mock: attaching to an already open tab works', attached === 'WAUX-OVERLAY', attached);
+await mock.keyboard.press('Escape');
+await setSettings({ shield: false });
+
 if (store) {
   const p = await ctx.newPage();
   await p.emulateMedia({ colorScheme: 'dark' });

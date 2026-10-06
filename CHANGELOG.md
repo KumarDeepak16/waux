@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 (2026-10-06)
+
+- Fix a start-up crash ("Cannot read properties of undefined (reading 'length')") when WAUX attaches to a WhatsApp tab that is already open, for example right after install or update.
+- A copy of WAUX left in an open tab after the extension is reloaded or updated now shuts itself down cleanly instead of throwing errors.
+- The Shield hides phone numbers next to unsaved group senders; contacts without a photo get 3D avatars; Focus Mode hides overlay edge lines.
+
 ## 1.0.0 (2026-10-06)
 
 First public release.

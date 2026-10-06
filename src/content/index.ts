@@ -78,7 +78,7 @@ function apply() {
   adapter.setHidden(state.vault.hidden);
   adapter.start();
   disposeReveal ??= installReveal(root);
-  if (document.body) scan();
+  if (document.body) queueMicrotask(scan);
   ui.set({ version: ui.get().version + 1 });
 }
 
@@ -341,31 +341,41 @@ window.addEventListener(
 
 // ---- Lifecycle and diagnostics ---------------------------------------------------
 
-document.addEventListener(
-  'waux:replace',
-  () => {
-    life.abort();
-    clearInterval(diagTimer);
-    initialsObs.disconnect();
-    adapter.stop();
-    disposeReveal?.();
-    host?.remove();
-    themeStyle.remove();
-    chatStyle.remove();
-    try {
-      stopState();
-    } catch {
-      // Extension context already gone.
-    }
-  },
-  { once: true },
-);
+/** True while this copy of the content script can still reach the extension. */
+const alive = () => {
+  try {
+    return !!chrome.runtime?.id;
+  } catch {
+    return false;
+  }
+};
+
+let tornDown = false;
+function teardown() {
+  if (tornDown) return;
+  tornDown = true;
+  life.abort();
+  clearInterval(diagTimer);
+  initialsObs.disconnect();
+  adapter.stop();
+  disposeReveal?.();
+  host?.remove();
+  themeStyle.remove();
+  chatStyle.remove();
+  try {
+    stopState();
+  } catch {
+    // Extension context already gone.
+  }
+}
+document.addEventListener('waux:replace', teardown, { once: true });
 
 // Which WhatsApp hooks this page exposes. Booleans only, no content. Shown
 // in Studio so a WhatsApp DOM change is visible instead of silent.
 let lastDiag = '';
 let pulses = 0;
 const diagTimer = window.setInterval(() => {
+  if (!alive()) return teardown();
   if (!state.settings.enabled || document.visibilityState !== 'visible') return;
   // Cheap geometry every second; DOM scans only for enabled features, less often.
   const n = pulses++;
@@ -378,7 +388,11 @@ const diagTimer = window.setInterval(() => {
   const key = JSON.stringify(probe);
   if (key === lastDiag) return;
   lastDiag = key;
-  chrome.storage.local.set({ diag: { ...probe, at: Date.now() } }).catch(() => {});
+  try {
+    chrome.storage.local.set({ diag: { ...probe, at: Date.now() } }).catch(() => {});
+  } catch {
+    // Context invalidated between the check and the call.
+  }
 }, 1000);
 
 // Initials avatars: watch the chat list only while photos are hidden.
