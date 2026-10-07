@@ -76,15 +76,15 @@ body {
   border-radius: calc(var(--waux-radius-lg) + 4px);
   background: var(--waux-card);
   color: var(--waux-fg-subtle);
-  box-shadow: 4px 4px 0 var(--waux-hard);
+  box-shadow: var(--waux-o4) var(--waux-hard), var(--waux-drop);
   transition: background-color 260ms, color 260ms, border-color 260ms, transform 140ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 140ms;
 }
 .power:hover .power__key {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--waux-hard);
+  transform: translate(calc(-2px * var(--waux-dx)), -2px);
+  box-shadow: var(--waux-o6) var(--waux-hard), var(--waux-drop);
 }
 .power:active .power__key {
-  transform: translate(3px, 3px);
+  transform: translate(calc(3px * var(--waux-dx)), 3px);
   box-shadow: 0 0 0 var(--waux-hard);
 }
 .power:focus-visible {
@@ -98,10 +98,10 @@ body {
   border-color: transparent;
   background: var(--waux-primary);
   color: var(--waux-primary-fg);
-  box-shadow: 4px 4px 0 var(--waux-hard), 0 0 32px -4px var(--waux-primary);
+  box-shadow: var(--waux-o4) var(--waux-hard), 0 0 32px -4px var(--waux-primary), var(--waux-drop);
 }
 .is-on .power:hover .power__key {
-  box-shadow: 6px 6px 0 var(--waux-hard), 0 0 40px -4px var(--waux-primary);
+  box-shadow: var(--waux-o6) var(--waux-hard), 0 0 40px -4px var(--waux-primary), var(--waux-drop);
 }
 .power__key .w-icon {
   transition: transform 360ms cubic-bezier(0.3, 1.5, 0.4, 1);

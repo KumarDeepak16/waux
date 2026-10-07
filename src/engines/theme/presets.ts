@@ -1,6 +1,6 @@
 import type { Theme } from '../../shared/types.ts';
 
-const base = { radius: 8, density: 'comfortable', depth: 0.7, blur: 18, font: 'geist', wallpaper: 'ambient' } as const;
+const base = { radius: 8, density: 'comfortable', depth: 0.7, blur: 18, font: 'geist', wallpaper: 'ambient', wallBlur: 24, wallDim: 0.55, style: 'brutal' } as const;
 
 /** Default. Neutral graphite surfaces, warm off-white ink, one ember signal. */
 export const OBSIDIAN: Theme = {
@@ -8,6 +8,7 @@ export const OBSIDIAN: Theme = {
   name: 'Obsidian',
   dark: {
     primary: '#f26a3d',
+    secondary: '#f26a3d',
     background: '#0b0c0e',
     foreground: '#e9e7e2',
     card: '#121316',
@@ -19,6 +20,7 @@ export const OBSIDIAN: Theme = {
   },
   light: {
     primary: '#d9522a',
+    secondary: '#d9522a',
     background: '#eeeef0',
     foreground: '#141416',
     card: '#fbfbfc',
@@ -36,6 +38,7 @@ export const COBALT: Theme = {
   radius: 10,
   dark: {
     primary: '#5b8cff',
+    secondary: '#5b8cff',
     background: '#090b10',
     foreground: '#e4e8f1',
     card: '#10131a',
@@ -47,6 +50,7 @@ export const COBALT: Theme = {
   },
   light: {
     primary: '#2f5fe0',
+    secondary: '#2f5fe0',
     background: '#eef0f5',
     foreground: '#10131a',
     card: '#fcfcfe',
@@ -65,6 +69,7 @@ export const MOSS: Theme = {
   depth: 0.5,
   dark: {
     primary: '#a3c46b',
+    secondary: '#a3c46b',
     background: '#0a0c0a',
     foreground: '#e3e6dc',
     card: '#111411',
@@ -76,6 +81,7 @@ export const MOSS: Theme = {
   },
   light: {
     primary: '#4d7a1f',
+    secondary: '#4d7a1f',
     background: '#eef0eb',
     foreground: '#121510',
     card: '#fbfcfa',
@@ -87,4 +93,37 @@ export const MOSS: Theme = {
   },
 };
 
-export const PRESETS: Theme[] = [OBSIDIAN, COBALT, MOSS];
+/** Soft 3D: rounded, lip-shadowed surfaces; green leads, blue signals. */
+export const PRISM: Theme = {
+  ...base,
+  name: 'Prism',
+  radius: 14,
+  depth: 0.85,
+  style: 'soft',
+  dark: {
+    primary: '#58cc02',
+    secondary: '#1cb0f6',
+    background: '#111b20',
+    foreground: '#f1f7fb',
+    card: '#17242a',
+    muted: '#202f36',
+    accent: '#22343c',
+    border: '#2e4049',
+    incoming: '#1d2c33',
+    outgoing: '#1f3a22',
+  },
+  light: {
+    primary: '#2f7d00',
+    secondary: '#0a7fc0',
+    background: '#f8f6f1',
+    foreground: '#1f2328',
+    card: '#ffffff',
+    muted: '#f1eee7',
+    accent: '#eef8e6',
+    border: '#e7e2d8',
+    incoming: '#ffffff',
+    outgoing: '#dcf7c4',
+  },
+};
+
+export const PRESETS: Theme[] = [OBSIDIAN, COBALT, MOSS, PRISM];

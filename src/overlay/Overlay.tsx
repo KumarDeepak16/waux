@@ -2,9 +2,10 @@ import { Fragment, type ComponentChildren } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { fuzzyScore, searchTemplates } from '../engines/quick/search.ts';
 import { hashPin } from '../shared/storage.ts';
-import type { State, Template } from '../shared/types.ts';
+import type { ChatPrefs, State, Template, Wallpaper } from '../shared/types.ts';
+import { chatWallKey, pickWallpaper } from '../shared/wallpaper.ts';
 import { Icon, type IconName } from '../ui/icons.tsx';
-import { ALT, Kbd, MOD, Switch } from '../ui/kit.tsx';
+import { ALT, Kbd, MOD, Seg, Switch } from '../ui/kit.tsx';
 import { Logo } from '../ui/Logo.tsx';
 import { useStore, type Store } from './store.ts';
 
@@ -65,7 +66,9 @@ export interface Actions {
   cycleDensity(): void;
   insertTemplate(t: Template): void;
   acceptSuggest(t: Template): void;
-  setChatPrefs(name: string, patch: { accent?: string | undefined; blur?: boolean }): void;
+  setChatPrefs(name: string, patch: { [K in keyof ChatPrefs]?: ChatPrefs[K] | undefined }): void;
+  /** undefined follows the theme; an image is stored per chat. */
+  setChatWallpaper(name: string, wallpaper: Wallpaper | undefined, image?: string): void;
   setHidden(name: string, hidden: boolean): void;
   openChat(name: string): void;
   openStudio(section: string): void;
@@ -135,7 +138,7 @@ function Palette({ actions, initial }: { actions: Actions; initial: string }) {
       { id: 'hidden', group: 'Actions', icon: 'lock', label: 'Hidden chats', hint: 'Chats kept out of the sidebar', run: () => actions.show('hidden') },
     ];
     if (chat) {
-      act.push({ id: 'chat', group: 'This chat', icon: 'paintBrush', label: 'Customize this chat', hint: chat, keywords: 'accent color blur', run: () => actions.show('chat') });
+      act.push({ id: 'chat', group: 'This chat', icon: 'paintBrush', label: 'Customize this chat', hint: chat, keywords: 'accent color blur nickname alias text size font wallpaper background image wide bubbles', run: () => actions.show('chat') });
       if (!s.vault.hidden.includes(chat)) {
         act.push({ id: 'hide', group: 'This chat', icon: 'eyeSlash', label: 'Hide from sidebar', hint: chat, run: () => { actions.setHidden(chat, true); actions.close(); } });
       }
@@ -256,6 +259,9 @@ function Palette({ actions, initial }: { actions: Actions; initial: string }) {
 
 // ---- Per-chat customization -------------------------------------------------
 
+const TEXT_SIZES = ['0.9', '1', '1.1', '1.25'] as const;
+type ChatWall = Wallpaper | 'theme';
+
 export const SWATCHES = ['#f26a3d', '#e0a23b', '#8fb35a', '#3fa596', '#5b8cff', '#8b7cf6', '#e0607e', '#8a94a6'];
 
 function ChatPanel({ actions }: { actions: Actions }) {
@@ -273,6 +279,19 @@ function ChatPanel({ actions }: { actions: Actions }) {
   }
   const prefs = s.settings.chats[chat] ?? {};
   const hidden = s.vault.hidden.includes(chat);
+  const hasImage = !!s.walls[chatWallKey(chat)];
+  const uploadWall = async () => {
+    try {
+      const url = await pickWallpaper();
+      if (url) actions.setChatWallpaper(chat, 'custom', url);
+    } catch (e) {
+      actions.toast(e instanceof Error ? e.message : 'Could not read that image');
+    }
+  };
+  const setWall = (w: ChatWall) => {
+    if (w === 'custom' && !hasImage) return void uploadWall();
+    actions.setChatWallpaper(chat, w === 'theme' ? undefined : w);
+  };
   return (
     <div class="o-panel o-sheet" role="dialog" aria-label="Customize this chat">
       <header class="o-sheet__head">
@@ -305,7 +324,51 @@ function ChatPanel({ actions }: { actions: Actions }) {
             />
           ))}
         </div>
+        <label class="w-field">
+          <span>Nickname</span>
+          <input
+            class="w-input"
+            placeholder={chat}
+            value={prefs.nickname ?? ''}
+            maxLength={40}
+            aria-label="Nickname"
+            onChange={(e) => actions.setChatPrefs(chat, { nickname: (e.target as HTMLInputElement).value.trim() })}
+          />
+          <small class="o-field-hint">Shown instead of the name in your list and this header. Stays on this device.</small>
+        </label>
+        <div class="o-field-label">Text size</div>
+        <Seg
+          label="Text size"
+          value={String(prefs.textScale ?? 1)}
+          onChange={(v) => actions.setChatPrefs(chat, { textScale: v === '1' ? undefined : Number(v) })}
+          options={TEXT_SIZES.map((v) => ({ value: v, label: `${Math.round(Number(v) * 100)}%` }))}
+        />
+        <div class="o-field-label">Wallpaper</div>
+        <Seg<ChatWall>
+          label="Wallpaper"
+          value={prefs.wallpaper ?? 'theme'}
+          onChange={setWall}
+          options={[
+            { value: 'theme', label: 'Theme' },
+            { value: 'ambient', label: 'Soft' },
+            { value: 'plain', label: 'Plain' },
+            { value: 'doodles', label: 'Doodles' },
+            { value: 'custom', label: 'Image' },
+          ]}
+        />
+        {prefs.wallpaper === 'custom' && (
+          <button class="w-btn" onClick={uploadWall}>
+            <Icon name="image" size={14} /> Change image
+          </button>
+        )}
         <div class="o-rows">
+          <label class="o-toggle">
+            <span>
+              <strong>Wide bubbles</strong>
+              <small>Long messages use the full width of the chat.</small>
+            </span>
+            <Switch label="Wide bubbles" checked={!!prefs.wide} onChange={(v) => actions.setChatPrefs(chat, { wide: v })} />
+          </label>
           <label class="o-toggle">
             <span>
               <strong>Always blur this chat</strong>

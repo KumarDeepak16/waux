@@ -9,6 +9,8 @@ export const THEME_FORMAT = 'waux-theme@1';
 /** Source variable names accepted for each token, in priority order. */
 const ALIASES: Record<ColorKey, string[]> = {
   primary: ['primary'],
+  // shadcn's 'secondary' is a muted surface, so only chart colors map here.
+  secondary: ['secondary-accent', 'chart-2'],
   background: ['background'],
   foreground: ['foreground'],
   card: ['card', 'popover'],
@@ -60,6 +62,10 @@ function fromJson(json: unknown, base: Theme): ImportResult {
     if (Number.isFinite(o.depth)) t.depth = clamp(o.depth, 0, 1);
     if (Number.isFinite(o.blur)) t.blur = clamp(o.blur, 0, 32);
     if (o.font === 'geist' || o.font === 'system') t.font = o.font;
+    if (o.style === 'brutal' || o.style === 'soft') t.style = o.style;
+    if (['ambient', 'doodles', 'plain', 'custom'].includes(o.wallpaper)) t.wallpaper = o.wallpaper;
+    if (Number.isFinite(o.wallBlur)) t.wallBlur = clamp(o.wallBlur, 0, 60);
+    if (Number.isFinite(o.wallDim)) t.wallDim = clamp(o.wallDim, 0, 0.9);
     return res;
   }
   return { error: 'No theme colors found in that JSON.' };
@@ -127,6 +133,7 @@ function merge(base: Theme, light: VarMap, dark: VarMap, shared: VarMap): Import
     if (!got.size) return;
     // Sources without chat tokens: derive bubbles from the imported palette.
     if (!got.has('incoming')) tokens.incoming = scheme === 'dark' ? mix(tokens.card, tokens.foreground, 0.03) : tokens.card;
+    if (!got.has('secondary')) tokens.secondary = tokens.primary;
     if (!got.has('outgoing')) tokens.outgoing = mix(tokens.card, tokens.primary, scheme === 'dark' ? 0.2 : 0.16);
     theme[scheme] = tokens;
     applied.push(`${scheme}: ${[...got].join(', ')}`);

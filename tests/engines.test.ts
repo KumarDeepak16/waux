@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { contrast, mix, normalizeHex, onColor, parseColor } from '../src/shared/color.ts';
-import { chatAccentCss, derive, whatsappCss, whatsappVars } from '../src/engines/theme/compile.ts';
+import { chatAccentCss, chatCss, cssStr, derive, nicknameCss, whatsappCss, whatsappVars } from '../src/engines/theme/compile.ts';
+import { normalize } from '../src/shared/storage.ts';
 import { exportTheme, importTheme } from '../src/engines/theme/io.ts';
 import { OBSIDIAN, PRESETS } from '../src/engines/theme/presets.ts';
 import { exportTemplates, fuzzyScore, importTemplates, newTemplate, normalizeShortcut, searchTemplates, shortcutToken, templatesForShortcut } from '../src/engines/quick/search.ts';
@@ -53,6 +54,8 @@ test('WDS vars include rgb triplets; css covers system mode', () => {
   assert.equal(vars['--WDS-accent'], '#f26a3d');
   assert.equal(vars['--WDS-accent-rgb'], '242, 106, 61');
   assert.ok(vars['--WDS-systems-bubble-surface-outgoing']);
+  // Hover overlays tint with the ink, not a surface color (else invisible at 10%).
+  assert.equal(vars['--WDS-surface-highlight-RGB'], vars['--WDS-content-default-RGB']);
   const css = whatsappCss(OBSIDIAN, 'system');
   assert.match(css, /@media \(prefers-color-scheme: light\)/);
   assert.match(css, /--WDS-accent:#f26a3d !important/);
@@ -161,4 +164,35 @@ test('quick messages: JSON import merges, dedupes and keeps shortcuts unique', (
   assert.equal(round.added, 3);
   assert.ok('error' in importTemplates([], '{nope'));
   assert.ok('error' in importTemplates([], '{"a":1}'));
+});
+
+test('cssStr escapes quotes, backslashes and newlines', () => {
+  assert.equal(cssStr('a"b\\c\nd'), '"a\\"b\\\\c d"');
+});
+
+test('nicknames hide the real name and draw the alias; header only for the open chat', () => {
+  const css = nicknameCss({ 'Ravi "R"': { nickname: 'Boss' }, Other: { blur: true } }, 'Ravi "R"');
+  assert.ok(css.includes('span[title="Ravi \\"R\\""]'));
+  assert.match(css, /content:"Boss"/);
+  assert.match(css, /conversation-info-header-chat-title/);
+  assert.doesNotMatch(nicknameCss({ A: { nickname: 'x' } }, 'B'), /conversation-info-header/);
+  assert.equal(nicknameCss({ A: { nickname: '  ' } }, null), '');
+});
+
+test('chat css: text size, wide bubbles, wallpaper image', () => {
+  const css = chatCss(OBSIDIAN, 'dark', { textScale: 1.1, wide: true }, 'data:image/jpeg;base64,AA');
+  assert.ok(css.includes('zoom:1.1'));
+  assert.ok(css.includes('max-width:none'));
+  assert.ok(css.includes('--waux-wall-img:url("data:image/jpeg;base64,AA")'));
+  assert.equal(chatCss(OBSIDIAN, 'dark', {}), '');
+});
+
+test('themes saved before secondary existed keep their own primary for it', () => {
+  const old = structuredClone(PRESETS[1]) as any;
+  delete old.dark.secondary;
+  delete old.light.secondary;
+  const st = normalize({ theme: old });
+  assert.equal(st.theme.dark.secondary, old.dark.primary);
+  assert.equal(st.theme.light.secondary, old.light.primary);
+  assert.deepEqual(st.walls, {});
 });

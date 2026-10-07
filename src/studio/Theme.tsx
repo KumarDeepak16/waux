@@ -3,14 +3,16 @@ import { resolveScheme } from '../engines/theme/compile.ts';
 import { exportTheme, importTheme } from '../engines/theme/io.ts';
 import { OBSIDIAN, PRESETS } from '../engines/theme/presets.ts';
 import { normalizeHex } from '../shared/color.ts';
-import { COLOR_KEYS, type ColorKey, type Density, type Scheme, type Theme } from '../shared/types.ts';
+import { pickWallpaper } from '../shared/wallpaper.ts';
+import { COLOR_KEYS, type ColorKey, type Density, type Scheme, type Theme, type ThemeStyle } from '../shared/types.ts';
 import { Icon } from '../ui/icons.tsx';
 import { Row, Seg, Switch } from '../ui/kit.tsx';
 import type { Page } from '../ui/page.ts';
 import { Preview } from './Preview.tsx';
 
 const TOKEN_INFO: Record<ColorKey, [string, string]> = {
-  primary: ['Primary', 'Actions, focus, unread, read receipts'],
+  primary: ['Primary', 'Actions, focus, selected chat, read receipts'],
+  secondary: ['Secondary', 'Unread badges and search focus'],
   background: ['Background', 'App canvas and chat wallpaper'],
   foreground: ['Foreground', 'Text and icons'],
   card: ['Card', 'Panels, chat list, headers'],
@@ -22,6 +24,18 @@ const TOKEN_INFO: Record<ColorKey, [string, string]> = {
 };
 
 export function ThemeSection({ state, update }: Page) {
+  const [wallError, setWallError] = useState('');
+  const uploadWall = async () => {
+    setWallError('');
+    try {
+      const url = await pickWallpaper();
+      if (!url) return;
+      update('walls', { ...state.walls, global: url });
+      setTheme({ wallpaper: 'custom' });
+    } catch (e) {
+      setWallError(e instanceof Error ? e.message : 'Could not read that image.');
+    }
+  };
   const theme = state.theme;
   const [scheme, setScheme] = useState<Scheme>(() => resolveScheme(state.settings.mode));
   const setTheme = (patch: Partial<Theme>) => update('theme', { ...theme, ...patch });
@@ -32,7 +46,7 @@ export function ThemeSection({ state, update }: Page) {
       <div class="sec__controls">
         <header class="sec__head">
           <h1>Theme Studio</h1>
-          <p>Nine tokens drive every surface. Hover, pressed, elevation and text contrast are derived for you.</p>
+          <p>Ten tokens drive every surface. Hover, pressed, elevation and text contrast are derived for you.</p>
         </header>
 
         <div class="presets" role="radiogroup" aria-label="Presets">
@@ -81,6 +95,17 @@ export function ThemeSection({ state, update }: Page) {
           <div class="group__head">
             <h2>Shape and depth</h2>
           </div>
+          <Row label="Style" hint="Hard offsets, or soft 3D with a bottom lip and multicolor accents">
+            <Seg<ThemeStyle>
+              label="Style"
+              value={theme.style}
+              onChange={(style) => setTheme({ style })}
+              options={[
+                { value: 'brutal', label: 'Hard' },
+                { value: 'soft', label: 'Soft 3D' },
+              ]}
+            />
+          </Row>
           <Slider label="Radius" value={theme.radius} min={0} max={20} unit="px" onChange={(radius) => setTheme({ radius })} />
           <Slider label="Depth" value={Math.round(theme.depth * 100)} min={0} max={100} unit="%" onChange={(d) => setTheme({ depth: d / 100 })} />
           <Slider label="Glass blur" value={theme.blur} min={0} max={32} unit="px" onChange={(blur) => setTheme({ blur })} />
@@ -113,18 +138,30 @@ export function ThemeSection({ state, update }: Page) {
               ]}
             />
           </Row>
-          <Row label="Chat wallpaper" hint="Ambient drifts softly behind your messages">
+          <Row label="Chat wallpaper" hint="Soft is a still color wash with a fine dot grid">
             <Seg
               label="Chat wallpaper"
               value={theme.wallpaper}
-              onChange={(wallpaper) => setTheme({ wallpaper })}
+              onChange={(wallpaper) => (wallpaper === 'custom' && !state.walls.global ? uploadWall() : setTheme({ wallpaper }))}
               options={[
-                { value: 'ambient', label: 'Ambient' },
+                { value: 'ambient', label: 'Soft' },
                 { value: 'doodles', label: 'Doodles' },
                 { value: 'plain', label: 'Plain' },
+                { value: 'custom', label: 'Image' },
               ]}
             />
           </Row>
+          {theme.wallpaper === 'custom' && (
+            <>
+              <Row label="Wallpaper image" hint={wallError || 'Stored on this device only, resized to 1600px'}>
+                <button class="w-btn" onClick={uploadWall}>
+                  <Icon name="upload" size={14} /> Choose image
+                </button>
+              </Row>
+              <Slider label="Image blur" value={theme.wallBlur} min={0} max={60} unit="px" onChange={(wallBlur) => setTheme({ wallBlur })} />
+              <Slider label="Image dim" value={Math.round(theme.wallDim * 100)} min={0} max={90} unit="%" onChange={(d) => setTheme({ wallDim: d / 100 })} />
+            </>
+          )}
           <Row label="Reduce motion" hint="Also follows your system setting">
             <Switch
               label="Reduce motion"

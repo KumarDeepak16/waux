@@ -5,6 +5,7 @@ export type FontChoice = 'geist' | 'system';
 
 export const COLOR_KEYS = [
   'primary',
+  'secondary',
   'background',
   'foreground',
   'card',
@@ -29,9 +30,17 @@ export interface Theme {
   /** Backdrop blur in px for floating WAUX surfaces. */
   blur: number;
   font: FontChoice;
-  /** Conversation background: drifting ember light, WhatsApp's doodles, or flat. */
-  wallpaper: 'ambient' | 'doodles' | 'plain';
+  /** Conversation background: a soft static wash, WhatsApp's doodles, flat, or your own image. */
+  wallpaper: Wallpaper;
+  /** Blur in px and dim 0..1 applied to a custom wallpaper image. */
+  wallBlur: number;
+  wallDim: number;
+  /** Depth language: hard diagonal offsets, or soft 3D with a bottom lip and multicolor accents. */
+  style: ThemeStyle;
 }
+
+export type ThemeStyle = 'brutal' | 'soft';
+export type Wallpaper = 'ambient' | 'doodles' | 'plain' | 'custom';
 
 /** What Privacy Shield hides when it is on. */
 export interface PrivacySettings {
@@ -50,6 +59,14 @@ export interface PrivacySettings {
 export interface ChatPrefs {
   accent?: string;
   blur?: boolean;
+  /** Private alias shown instead of the contact name. */
+  nickname?: string;
+  /** Message size multiplier, e.g. 1.1. Absent means 1. */
+  textScale?: number;
+  /** Let bubbles use the full conversation width. */
+  wide?: boolean;
+  /** Overrides the theme wallpaper in this chat. */
+  wallpaper?: Wallpaper;
 }
 
 /** WhatsApp surfaces the user can switch off. */
@@ -95,9 +112,13 @@ export interface Vault {
   lock: { salt: string; hash: string } | null;
 }
 
+/** Wallpaper images as data URLs: 'global' for the theme, 'chat:<name>' per chat. */
+export type Walls = Record<string, string>;
+
 export interface State {
   settings: Settings;
   theme: Theme;
   templates: Template[];
   vault: Vault;
+  walls: Walls;
 }

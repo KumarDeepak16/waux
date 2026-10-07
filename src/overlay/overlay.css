@@ -200,6 +200,8 @@
 .o-sheet__body {
   display: grid;
   gap: 14px;
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
   padding: 16px 18px 18px;
 }
 .o-field-label {
@@ -236,6 +238,16 @@
   background: linear-gradient(135deg, transparent 45%, var(--waux-border-strong) 45%, var(--waux-border-strong) 55%, transparent 55%), var(--waux-card);
 }
 
+.o-field-hint {
+  color: var(--waux-fg-subtle);
+  font-size: 11.5px;
+}
+.o-sheet__body .w-seg {
+  display: flex;
+}
+.o-sheet__body .w-seg__opt {
+  flex: 1;
+}
 .o-rows {
   display: grid;
   border-top: 1px solid var(--waux-border);
@@ -370,8 +382,8 @@
 }
 .o-chip:hover {
   border-color: var(--waux-primary);
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .o-chip__tag {
   padding: 0 5px;
@@ -455,8 +467,8 @@
   cursor: pointer;
 }
 .o-toast__undo:hover {
-  box-shadow: 2px 2px 0 var(--waux-hard);
-  transform: translate(-1px, -1px);
+  box-shadow: var(--waux-o2) var(--waux-hard);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
 }
 
 /* ---- Dock: WAUX keys on WhatsApp's nav rail ---------------------------------- */
@@ -492,11 +504,11 @@
   border-color: var(--waux-border-strong);
   background: var(--waux-s2);
   color: var(--waux-fg);
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .o-dock__key:active {
-  transform: translate(1px, 1px);
+  transform: translate(calc(1px * var(--waux-dx)), 1px);
   box-shadow: none;
 }
 .o-dock__key:focus-visible {
@@ -507,7 +519,7 @@
   border-color: transparent;
   background: var(--waux-primary);
   color: var(--waux-primary-fg);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .o-dock__mark {
   width: 18px;
@@ -537,7 +549,7 @@
   border: 1px solid var(--waux-border-strong);
   border-radius: 5px;
   background: var(--waux-card);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
   color: var(--waux-fg);
   font: 500 11.5px/1.2 var(--waux-font);
   white-space: pre;
@@ -641,7 +653,7 @@
   border: 1px solid var(--waux-border-strong);
   border-radius: var(--waux-radius);
   background: var(--waux-card);
-  box-shadow: 3px 3px 0 var(--waux-hard);
+  box-shadow: var(--waux-o3) var(--waux-hard), var(--waux-drop);
   color: var(--waux-fg);
   text-align: left;
   cursor: pointer;
@@ -651,11 +663,11 @@
 }
 .o-tile:hover {
   border-color: var(--waux-primary);
-  transform: translate(-3px, -3px);
-  box-shadow: 6px 6px 0 var(--waux-primary);
+  transform: translate(calc(-3px * var(--waux-dx)), -3px);
+  box-shadow: var(--waux-o6) var(--waux-primary), var(--waux-drop);
 }
 .o-tile:active {
-  transform: translate(1px, 1px);
+  transform: translate(calc(1px * var(--waux-dx)), 1px);
   box-shadow: none;
 }
 .o-tile__keys {
@@ -703,7 +715,7 @@
   border-left: 0;
   border-radius: 0 var(--waux-radius-sm) var(--waux-radius-sm) 0;
   background: var(--waux-card);
-  box-shadow: 3px 3px 0 var(--waux-hard);
+  box-shadow: var(--waux-o3) var(--waux-hard), var(--waux-drop);
   color: var(--waux-fg-muted);
   font: 600 10.5px/1 var(--waux-mono);
   letter-spacing: 0.12em;
@@ -720,7 +732,7 @@
   padding-left: 12px;
   background: var(--waux-primary);
   color: var(--waux-primary-fg);
-  box-shadow: 4px 4px 0 var(--waux-hard);
+  box-shadow: var(--waux-o4) var(--waux-hard), var(--waux-drop);
 }
 
 @keyframes o-scan {

@@ -811,7 +811,7 @@ a {
 }
 .shield-card.is-on {
   border-color: color-mix(in srgb, var(--waux-primary) 60%, var(--waux-border));
-  box-shadow: 4px 4px 0 var(--waux-primary);
+  box-shadow: var(--waux-o4) var(--waux-primary), var(--waux-drop);
 }
 .shield-card__top {
   display: flex;
@@ -830,7 +830,7 @@ a {
   border-radius: var(--waux-radius);
   background: var(--waux-card);
   color: var(--waux-fg-muted);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
   transition: background-color 200ms, color 200ms;
 }
 .shield-card.is-on .shield-card__icon {
@@ -886,8 +886,8 @@ a {
 }
 .scope__opt:hover {
   color: var(--waux-fg);
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .scope__check {
   display: grid;
@@ -954,7 +954,7 @@ a {
   border-radius: var(--waux-radius);
   background: var(--waux-in);
   color: var(--waux-in-fg);
-  box-shadow: 3px 3px 0 var(--waux-hard);
+  box-shadow: var(--waux-o3) var(--waux-hard), var(--waux-drop);
   transition: transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 180ms, border-color 160ms;
 }
 .privacy-sample__name {
@@ -975,8 +975,8 @@ a {
 }
 .privacy-sample:hover {
   border-color: var(--waux-primary);
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--waux-primary);
+  transform: translate(calc(-2px * var(--waux-dx)), -2px);
+  box-shadow: var(--waux-o5) var(--waux-primary), var(--waux-drop);
 }
 .privacy-sample:hover :is(.privacy-sample__name, .privacy-sample__text) {
   font-family: inherit;

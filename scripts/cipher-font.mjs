@@ -3,25 +3,76 @@
 // sensitive text, it hides content without touching WhatsApp's DOM; word
 // lengths and layout stay intact, and removing the font reveals the text.
 
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
 const UPM = 1000;
 const ASC = 880;
 const DESC = 220;
-const ADV = 540; // close to Geist's average advance, so hover-reveal barely reflows
+const ADV = 540; // fallback advance for characters Geist does not cover
 const SPACE_ADV = 260;
 const DOT = 124;
 const COLS = [86, 290];
 const ROWS = [0, 172, 344, 516];
 const VARIANTS = 16;
+const STEP = 10; // advances are rounded to this, to bound the glyph count
+const NARROW = 380; // below this advance, a glyph draws one centered column
 
 const SPACES = new Set([0x20, 0xa0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a, 0x202f, 0x205f, 0x3000]);
 const unmapped = (cp) =>
   cp < 0x20 || (cp >= 0x7f && cp <= 0x9f) || (cp >= 0xd800 && cp <= 0xdfff) || (cp >= 0x200b && cp <= 0x200f) || (cp >= 0xfe00 && cp <= 0xfe0f) || cp === 0xfeff || cp >= 0xfffe;
 
-/** Glyph id for a code point: 0 none, 1 space, 2..17 cipher. */
+/** Geist Regular's advance per code point (also 1000 UPM). Cipher text takes
+ *  the room the real text will, so revealing it does not reflow. */
+function geistAdvances() {
+  const b = readFileSync(path.resolve(import.meta.dirname, '../node_modules/geist/dist/fonts/geist-sans/Geist-Regular.ttf'));
+  const t = {};
+  for (let i = 0; i < b.readUInt16BE(4); i++) t[b.toString('latin1', 12 + i * 16, 16 + i * 16)] = b.readUInt32BE(20 + i * 16);
+  const metrics = b.readUInt16BE(t.hhea + 34);
+  const adv = (g) => b.readUInt16BE(t.hmtx + 4 * Math.min(g, metrics - 1));
+  let sub = 0; // cmap subtable 3/1, format 4
+  for (let i = 0; i < b.readUInt16BE(t.cmap + 2); i++) {
+    const o = t.cmap + 4 + i * 8;
+    if (b.readUInt16BE(o) === 3 && b.readUInt16BE(o + 2) === 1) sub = t.cmap + b.readUInt32BE(o + 4);
+  }
+  const segX2 = b.readUInt16BE(sub + 6);
+  const ends = sub + 14, starts = ends + segX2 + 2, deltas = starts + segX2, ranges = deltas + segX2;
+  const out = new Map();
+  for (let s = 0; s < segX2; s += 2) {
+    const start = b.readUInt16BE(starts + s), end = b.readUInt16BE(ends + s);
+    const delta = b.readUInt16BE(deltas + s), ro = b.readUInt16BE(ranges + s);
+    for (let cp = start; cp <= end && cp < 0xffff; cp++) {
+      const g = ro ? b.readUInt16BE(ranges + s + ro + 2 * (cp - start)) : cp;
+      if (g && (g + delta) & 0xffff) out.set(cp, adv((g + delta) & 0xffff));
+    }
+  }
+  return out;
+}
+
+const GEIST = geistAdvances();
+
+/** [variant, advance] for a code point; variant -1 draws nothing. */
+function shapeOf(cp) {
+  const a = GEIST.get(cp);
+  const variant = SPACES.has(cp) || a === 0 ? -1 : cp % VARIANTS;
+  if (a === undefined) return [variant, variant < 0 ? SPACE_ADV : ADV];
+  return [variant, Math.round(a / STEP) * STEP];
+}
+
+// Glyph ids: 0 none, 1 space, 2..17 cipher at the fallback advances, then one
+// glyph per other (variant, advance) pair Geist needs.
+const EXTRA = new Map();
+for (const cp of GEIST.keys()) {
+  if (unmapped(cp)) continue;
+  const [v, a] = shapeOf(cp);
+  const key = `${v}:${a}`;
+  if (a !== (v < 0 ? SPACE_ADV : ADV) && !EXTRA.has(key)) EXTRA.set(key, 2 + VARIANTS + EXTRA.size);
+}
+
 export function glyphFor(cp) {
   if (unmapped(cp)) return 0;
-  if (SPACES.has(cp)) return 1;
-  return 2 + (cp % VARIANTS);
+  const [v, a] = shapeOf(cp);
+  return EXTRA.get(`${v}:${a}`) ?? (v < 0 ? 1 : 2 + v);
 }
 
 // Deterministic dot patterns: 8 cells (2 cols x 4 rows), 3 to 6 dots each.
@@ -51,12 +102,18 @@ class W {
   done() { return Buffer.concat(this.parts); }
 }
 
-function glyphData(bits) {
+function glyphData(bits, adv = ADV) {
+  // Narrow letters get one centered column; others scale down or center.
+  const scale = Math.min(adv / ADV, 1);
+  const shift = Math.max(0, (adv - ADV) / 2);
   const rects = [];
+  const seen = new Set();
   for (let i = 0; i < 8; i++) {
     if (!(bits & (1 << i))) continue;
-    const x = COLS[i % 2];
+    const x = Math.round(adv < NARROW ? (adv - DOT) / 2 : COLS[i % 2] * scale + shift);
     const y = ROWS[i >> 1];
+    if (seen.has(`${x},${y}`)) continue;
+    seen.add(`${x},${y}`);
     rects.push([x, y, x + DOT, y + DOT]);
   }
   const xs = rects.flatMap((r) => [r[0], r[2]]);
@@ -70,7 +127,7 @@ function glyphData(bits) {
   for (const [x] of pts) { w.i16(x - px); px = x; }
   let py = 0;
   for (const [, y] of pts) { w.i16(y - py); py = y; }
-  return { data: w.done(), xMin: Math.min(...xs), rects: rects.length };
+  return { data: w.done(), xMin: Math.min(...xs), xMax: Math.max(...xs), rects: rects.length };
 }
 
 function cmapFormat4() {
@@ -130,12 +187,23 @@ export function buildCipherFont() {
   const pats = patterns();
   const glyphs = [{ data: Buffer.alloc(0), xMin: 0, adv: ADV }, { data: Buffer.alloc(0), xMin: 0, adv: SPACE_ADV }];
   let maxRects = 0;
-  for (const bits of pats) {
-    const g = glyphData(bits);
+  let xMin = COLS[0];
+  let xMax = COLS[1] + DOT;
+  const add = (bits, adv) => {
+    if (bits === undefined) return glyphs.push({ data: Buffer.alloc(0), xMin: 0, adv });
+    const g = glyphData(bits, adv);
     maxRects = Math.max(maxRects, g.rects);
-    glyphs.push({ data: pad4(g.data), xMin: g.xMin, adv: ADV });
+    xMin = Math.min(xMin, g.xMin);
+    xMax = Math.max(xMax, g.xMax);
+    glyphs.push({ data: pad4(g.data), xMin: g.xMin, adv });
+  };
+  for (const bits of pats) add(bits, ADV);
+  for (const key of EXTRA.keys()) {
+    const [v, a] = key.split(':').map(Number);
+    add(v < 0 ? undefined : pats[v], a);
   }
   const numGlyphs = glyphs.length;
+  const maxAdv = Math.max(...glyphs.map((g) => g.adv));
 
   const glyf = Buffer.concat(glyphs.map((g) => g.data));
   const loca = new W();
@@ -147,9 +215,9 @@ export function buildCipherFont() {
 
   const head = new W().u32(0x00010000).u32(0x00010000).u32(0).u32(0x5f0f3cf5).u16(0x000b).u16(UPM)
     .u32(0).u32(0).u32(0).u32(0) // created, modified
-    .i16(COLS[0]).i16(0).i16(COLS[1] + DOT).i16(ROWS[3] + DOT)
+    .i16(xMin).i16(0).i16(xMax).i16(ROWS[3] + DOT)
     .u16(0).u16(8).i16(2).i16(1).i16(0).done();
-  const hhea = new W().u32(0x00010000).i16(ASC).i16(-DESC).i16(0).u16(ADV).i16(0).i16(0).i16(COLS[1] + DOT)
+  const hhea = new W().u32(0x00010000).i16(ASC).i16(-DESC).i16(0).u16(maxAdv).i16(0).i16(0).i16(xMax)
     .i16(1).i16(0).i16(0).i16(0).i16(0).i16(0).i16(0).i16(0).u16(numGlyphs).done();
   const maxp = new W().u32(0x00010000).u16(numGlyphs).u16(maxRects * 4).u16(maxRects)
     .u16(0).u16(0).u16(2).u16(0).u16(0).u16(0).u16(0).u16(0).u16(0).u16(0).u16(0).done();

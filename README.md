@@ -30,15 +30,17 @@
 
 **Design**
 - **Obsidian theme.** Graphite surfaces, one ember accent, Geist typography, hairline borders and soft-brutalist depth. Light, dark or follow the system.
-- **Theme Studio.** Nine color tokens plus radius, depth, glass blur, density, typeface and wallpaper. Hover, pressed, elevation and text-on-surface colors are derived for you, with a live preview. Import tweakcn / shadcn CSS variables or WAUX JSON.
-- **Ambient wallpaper.** Slow, soft light drifting behind your messages instead of the doodle pattern.
+- **Prism.** A soft 3D theme: rounded surfaces on a bottom lip, green for actions and blue for unread.
+- **Theme Studio.** Ten color tokens (primary and secondary) plus style (hard or soft 3D), radius, depth, glass blur, density, typeface and wallpaper. Hover, pressed, elevation and text-on-surface colors are derived for you, with a live preview. Import tweakcn / shadcn CSS variables or WAUX JSON.
+- **Wallpapers.** Soft (a still color wash with a fine dot grid), plain, WhatsApp's doodles, or your own image, blurred and dimmed.
+- **Per-chat style.** Accent, private nickname, text size, wallpaper and wide bubbles for each conversation.
 - **Chat cards.** Every chat is a card; unread chats get an ember rail, the open chat an ember edge.
 
 **Privacy**
 - **Privacy Shield.** One switch (<kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>S</kbd>) that hides what you choose: messages, names, photos, media.
 - **Cipher text.** Hidden text is redrawn as dot-matrix glyphs by a bundled font, so layout stays intact and nothing in WhatsApp is modified. Blur is available as an alternative.
 - **3D avatars.** Profile photos are replaced by generated 3D characters while the Shield is on.
-- **Read on demand.** Hover (or click) a message, chat or header to read it; hold <kbd>Alt</kbd> to see everything.
+- **Read on demand.** Hover (or click) a message, chat or header to read it; hold <kbd>Alt</kbd> to read the open chat.
 - **Hidden chats.** Keep chosen chats out of the chat list, in a PIN-protected area. Nothing is archived or deleted.
 - **Notification text.** Desktop alerts can say "New message" instead of the content.
 
@@ -52,7 +54,7 @@
 
 | | |
 |---|---|
-| <img src="docs/assets/shot-chat.png" alt="WAUX theme on WhatsApp Web"><br><sub>Obsidian theme, chat cards and ambient wallpaper</sub> | <img src="docs/assets/shot-palette.png" alt="Command palette"><br><sub>Command palette: actions, chats and quick messages</sub> |
+| <img src="docs/assets/shot-chat.png" alt="WAUX theme on WhatsApp Web"><br><sub>Obsidian theme, chat cards and soft wallpaper</sub> | <img src="docs/assets/shot-palette.png" alt="Command palette"><br><sub>Command palette: actions, chats and quick messages</sub> |
 | <img src="docs/assets/shot-theme.png" alt="Theme Studio"><br><sub>Theme Studio with live preview</sub> | <img src="docs/assets/shot-settings.png" alt="Settings"><br><sub>Settings: Privacy Shield, chat list, interface, shortcuts</sub> |
 
 <p align="center"><img src="docs/assets/shot-popup.png" alt="Toolbar popup" width="220"><br><sub>Toolbar popup: one key to switch WAUX on or off</sub></p>

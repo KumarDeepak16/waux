@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { avatarSvg } from './avatars.mjs';
 import { buildCipherFont } from './cipher-font.mjs';
+import { PRISM } from '../src/engines/theme/presets.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const dist = path.join(root, 'dist');
@@ -79,6 +80,21 @@ await page.keyboard.type('th');
 await page.waitForTimeout(400);
 await page.screenshot({ path: path.join(out, 'shot-palette.png') });
 await page.keyboard.press('Escape');
+
+// Prism (soft 3D) and the per-chat panel.
+await sw.evaluate((theme) => chrome.storage.local.set({ theme }), PRISM);
+await openMock('chat');
+await page.mouse.move(900, 600);
+await page.screenshot({ path: path.join(out, 'shot-prism.png') });
+await page.keyboard.press('Control+k');
+await page.waitForTimeout(300);
+await page.keyboard.type('customize');
+await page.waitForTimeout(300);
+await page.keyboard.press('Enter');
+await page.waitForTimeout(600);
+await page.screenshot({ path: path.join(out, 'shot-customize.png') });
+await page.keyboard.press('Escape');
+await sw.evaluate(() => chrome.storage.local.remove('theme'));
 
 for (const sec of ['theme', 'settings']) {
   await page.goto(`${base}/studio.html#${sec}`);

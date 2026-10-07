@@ -74,11 +74,11 @@
 .w-btn:hover {
   background: var(--waux-s3);
   border-color: var(--waux-border-strong);
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .w-btn:active {
-  transform: translate(1px, 1px);
+  transform: translate(calc(1px * var(--waux-dx)), 1px);
   box-shadow: none;
 }
 .w-btn:disabled {
@@ -94,7 +94,7 @@
 .w-btn--primary:hover {
   background: var(--waux-primary-hi);
   border-color: transparent;
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 .w-btn--ghost {
   background: transparent;

@@ -4,7 +4,7 @@
 
 import { OBSIDIAN } from '../engines/theme/presets.ts';
 import { newTemplate } from '../engines/quick/search.ts';
-import type { Settings, State, Template, Theme, Vault } from './types.ts';
+import type { Settings, State, Template, Theme, Vault, Walls } from './types.ts';
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -46,7 +46,7 @@ export function starterTemplates(): Template[] {
 }
 
 type Keys = keyof State;
-const KEYS: Keys[] = ['settings', 'theme', 'templates', 'vault'];
+const KEYS: Keys[] = ['settings', 'theme', 'templates', 'vault', 'walls'];
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 
@@ -65,11 +65,20 @@ export function normalize(raw: Partial<Record<Keys, unknown>>): State {
   // Older versions had independent 'always blur' toggles defaulting off; a
   // Shield that hides nothing is never what anyone wants.
   if (!p.messages && !p.names && !p.avatars && !p.media) p.messages = p.names = p.avatars = p.media = true;
+  const theme = deepMerge<Theme>(OBSIDIAN, raw.theme);
+  // Themes saved before 'secondary' existed: it follows their own primary,
+  // not the default theme's.
+  const saved = isObj(raw.theme) ? raw.theme : {};
+  for (const scheme of ['dark', 'light'] as const) {
+    const t = saved[scheme];
+    if (!isObj(t) || !t.secondary) theme[scheme] = { ...theme[scheme], secondary: theme[scheme].primary };
+  }
   return {
     settings,
-    theme: deepMerge<Theme>(OBSIDIAN, raw.theme),
+    theme,
     templates: Array.isArray(raw.templates) ? (raw.templates as Template[]) : [],
     vault: deepMerge(DEFAULT_VAULT, raw.vault),
+    walls: isObj(raw.walls) ? (raw.walls as Walls) : {},
   };
 }
 

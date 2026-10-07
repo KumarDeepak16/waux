@@ -34,7 +34,6 @@ export function privacyFlags(s: Settings, chatBlur: boolean): Record<string, boo
   };
 }
 
-const PEEK = 'waux-peek';
 const REVEALED = 'waux-revealed';
 const HIDING = '.waux-p-msg, .waux-p-name, .waux-p-avatar, .waux-p-media, .waux-chat-blur';
 
@@ -54,7 +53,8 @@ function unitOf(el: Element | null): Element | null {
  *  - hover: the unit under the pointer shows real text and photos.
  *  - click: the first click on a hidden unit reveals it and is swallowed,
  *    so it never opens media or a chat by accident. Moving away hides it.
- *  - hold Alt: everything is revealed until release.
+ *  - hold Alt: the open chat is revealed until release (everything when no
+ *    chat is open), so peeking at a conversation never exposes the chat list.
  * Driven from JS (a class on the unit) rather than CSS :hover, so it works
  * whatever WhatsApp layers on top of its rows.
  */
@@ -66,7 +66,14 @@ export function installReveal(root: HTMLElement): () => void {
     unit?.classList.add(REVEALED);
     current = unit;
   };
-  const hiding = () => root.matches(HIDING) && !root.classList.contains(PEEK);
+  const hiding = () => root.matches(HIDING);
+
+  let peeked: Element | null = null;
+  const peek = (on: boolean) => {
+    peeked?.classList.remove(REVEALED);
+    peeked = on ? (document.getElementById('main') ?? root) : null;
+    peeked?.classList.add(REVEALED);
+  };
 
   const onOver = (e: PointerEvent) => {
     if (!hiding()) return set(null);
@@ -90,22 +97,22 @@ export function installReveal(root: HTMLElement): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Alt' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
       peekCandidate = true;
-      root.classList.add(PEEK);
+      peek(true);
     } else if (peekCandidate) {
       // Alt is part of a chord (Alt+Shift+S...), not a peek.
       peekCandidate = false;
-      root.classList.remove(PEEK);
+      peek(false);
     }
   };
   const onKeyUp = (e: KeyboardEvent) => {
     if (e.key !== 'Alt') return;
     if (peekCandidate) e.preventDefault(); // keep focus off the browser menu
     peekCandidate = false;
-    root.classList.remove(PEEK);
+    peek(false);
   };
   const onBlur = () => {
     peekCandidate = false;
-    root.classList.remove(PEEK);
+    peek(false);
   };
 
   window.addEventListener('click', onClick, true);
@@ -122,6 +129,6 @@ export function installReveal(root: HTMLElement): () => void {
     window.removeEventListener('keydown', onKeyDown, true);
     window.removeEventListener('keyup', onKeyUp, true);
     window.removeEventListener('blur', onBlur);
-    root.classList.remove(PEEK);
+    peek(false);
   };
 }

@@ -4,7 +4,7 @@
 // text-on-surface colors consistently across WhatsApp and WAUX surfaces.
 
 import { alpha, mix, onColor, readableOn, rgbTriplet, shiftL } from '../../shared/color.ts';
-import type { ColorTokens, Density, Mode, Scheme, Theme } from '../../shared/types.ts';
+import type { ChatPrefs, ColorTokens, Density, Mode, Scheme, Theme } from '../../shared/types.ts';
 
 export interface Palette {
   bg: string;
@@ -98,6 +98,32 @@ export const FONT_STACK = {
   mono: `"Geist Mono", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace`,
 };
 
+const c2 = (theme: Theme, scheme: Scheme) => theme[scheme].secondary ?? theme[scheme].primary;
+
+function depthVars(theme: Theme, scheme: Scheme, p: Palette): Record<string, string> {
+  const dark = scheme === 'dark';
+  const offsets = (soft: boolean) =>
+    Object.fromEntries([1, 2, 3, 4, 5, 6].map((n) => [`--waux-o${n}`, soft ? `0 ${n}px 0` : `${n}px ${n}px 0`]));
+  if (theme.style !== 'soft') {
+    return {
+      ...offsets(false),
+      '--waux-dx': '1',
+      '--waux-drop': '0 0 #0000',
+      '--waux-hard': dark ? mix(p.borderStrong, p.bg, 0.15) : alpha(p.fg, 0.85),
+      '--waux-hard-soft': dark ? alpha('#000000', 0.45) : alpha(p.fg, 0.12),
+    };
+  }
+  const ink = rgbTriplet(mix(p.bg, '#000000', dark ? 0.7 : 0.55));
+  const a = (n: number) => +(n * Math.min(1, Math.max(0, theme.depth))).toFixed(3);
+  return {
+    ...offsets(true),
+    '--waux-dx': '0',
+    '--waux-drop': `0 12px 24px -14px rgba(${ink}, ${a(dark ? 0.9 : 0.35)})`,
+    '--waux-hard': dark ? mix(p.borderStrong, '#000000', 0.25) : mix(p.border, p.fg, 0.1),
+    '--waux-hard-soft': dark ? alpha('#000000', 0.3) : alpha(p.fg, 0.06),
+  };
+}
+
 /** `--waux-*` variables consumed by the WhatsApp skin and all WAUX UI. */
 export function wauxVars(theme: Theme, scheme: Scheme): Record<string, string> {
   const p = derive(theme[scheme], scheme, theme.depth);
@@ -115,11 +141,15 @@ export function wauxVars(theme: Theme, scheme: Scheme): Record<string, string> {
     '--waux-primary': p.primary,
     '--waux-primary-fg': p.primaryFg,
     '--waux-primary-hi': p.primaryHi,
+    '--waux-secondary': c2(theme, scheme),
+    '--waux-secondary-fg': onColor(c2(theme, scheme)),
+    '--waux-wall-blur': `${Math.max(0, theme.wallBlur)}px`,
+    '--waux-wall-dim': `${Math.round(Math.min(0.9, Math.max(0, theme.wallDim)) * 100)}%`,
     '--waux-primary-soft': alpha(p.primary, scheme === 'dark' ? 0.16 : 0.12),
     '--waux-ring': alpha(p.primary, 0.5),
-    // Hard offset shadow for the brutalist press/lift language.
-    '--waux-hard': scheme === 'dark' ? mix(p.borderStrong, p.bg, 0.15) : alpha(p.fg, 0.85),
-    '--waux-hard-soft': scheme === 'dark' ? alpha('#000000', 0.45) : alpha(p.fg, 0.12),
+    // Offset shadow for the press/lift language: diagonal for brutal, a
+    // vertical 3D lip for soft. --waux-oN is the geometry, --waux-hard its color.
+    ...depthVars(theme, scheme, p),
     '--waux-fg-muted': p.fgMuted,
     '--waux-fg-subtle': p.fgSubtle,
     '--waux-s2': p.s2,
@@ -226,6 +256,10 @@ export function whatsappVars(p: Palette): Record<string, string> {
     out[`--WDS-${k}`] = v;
     if (v.startsWith('#')) out[`--WDS-${k}-RGB`] = out[`--WDS-${k}-rgb`] = rgbTriplet(v);
   }
+  // WhatsApp paints menu and button hovers as rgba(surface-highlight-RGB, 10%),
+  // an overlay tint (white in its own dark theme). A surface color there is
+  // invisible, so the triplet carries the ink while the solid token stays a surface.
+  out['--WDS-surface-highlight-RGB'] = out['--WDS-surface-highlight-rgb'] = rgbTriplet(p.fg);
   for (const [k, v] of Object.entries(legacy)) {
     out[`--${k}`] = v;
     out[`--${k}-rgb`] = rgbTriplet(v);
@@ -275,6 +309,39 @@ export function chatAccentCss(theme: Theme, mode: Mode, accent: string): string 
     vars['--waux-primary'] = p.primary;
     return `html.waux #main{${decl(vars, true)}}`;
   });
+}
+
+/** A CSS string literal; safe for any chat name or nickname. */
+export const cssStr = (s: string) => `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\r\n]+/g, ' ')}"`;
+
+/** Everything one chat's preferences change inside the open conversation. */
+export function chatCss(theme: Theme, mode: Mode, prefs: ChatPrefs, wallUrl?: string): string {
+  let css = prefs.accent ? chatAccentCss(theme, mode, prefs.accent) : '';
+  if (wallUrl) css += `html.waux #main{--waux-wall-img:url(${cssStr(wallUrl)})}`;
+  if (prefs.textScale && prefs.textScale !== 1) css += `html.waux #main [data-testid="msg-container"]{zoom:${prefs.textScale}}`;
+  // WhatsApp caps bubbles at 65-95% of the pane through wrapper max-widths.
+  if (prefs.wide) css += `html.waux #main [data-testid^="conv-msg-"] div:has([data-testid="msg-container"]){max-width:none!important}`;
+  return css;
+}
+
+/**
+ * Private nicknames. The real name stays in the DOM (WAUX keys chats by it);
+ * it is drawn at size 0 and the alias painted after it at the inherited size
+ * (--waux-fs, a registered length in skin.css, resolved on the parent).
+ */
+export function nicknameCss(chats: Record<string, ChatPrefs>, active: string | null): string {
+  let css = '';
+  for (const [name, p] of Object.entries(chats)) {
+    const nick = p.nickname?.trim();
+    if (!nick) continue;
+    const targets = [`span[title=${cssStr(name)}]`];
+    if (name === active) targets.push('[data-testid="conversation-info-header-chat-title"]');
+    const t = `html.waux :is(${targets.join(',')})`;
+    css += `html.waux :has(> :is(${targets.join(',')})){--waux-fs:1em}`;
+    css += `${t}{font-size:0!important}${t} > *{display:none!important}`;
+    css += `${t}::after{content:${cssStr(nick)};font-size:var(--waux-fs)}`;
+  }
+  return css;
 }
 
 /** Stylesheet for extension pages (popup, studio). */

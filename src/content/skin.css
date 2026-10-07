@@ -101,20 +101,20 @@ html.waux #pane-side [data-testid="cell-frame-container"]::before {
   border: 1px solid var(--waux-border-strong);
   border-radius: var(--waux-radius);
   background: var(--waux-s2);
-  box-shadow: 3px 3px 0 var(--waux-hard);
+  box-shadow: var(--waux-o3) var(--waux-hard), var(--waux-drop);
   transition: background-color 140ms, border-color 140ms, transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 180ms;
 }
 html.waux #pane-side [role="row"]:hover [data-testid="cell-frame-container"]::before {
   border-color: color-mix(in srgb, var(--waux-primary) 55%, var(--waux-border-strong));
   background: var(--waux-s3);
-  transform: translate(-3px, -3px);
-  box-shadow: 6px 6px 0 color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard));
+  transform: translate(calc(-3px * var(--waux-dx)), -3px);
+  box-shadow: var(--waux-o6) color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard)), var(--waux-drop);
 }
 html.waux #pane-side [aria-selected="true"] [data-testid="cell-frame-container"]::before {
   border-color: var(--waux-primary);
   background: var(--waux-accent);
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--waux-primary);
+  transform: translate(calc(-2px * var(--waux-dx)), -2px);
+  box-shadow: var(--waux-o5) var(--waux-primary), var(--waux-drop);
 }
 /* Unread: an ember rail on the card's left edge. */
 html.waux #pane-side [data-testid^="list-item-"]:has([data-testid="icon-unread-count"]) [data-testid="cell-frame-container"]::after {
@@ -125,13 +125,15 @@ html.waux #pane-side [data-testid^="list-item-"]:has([data-testid="icon-unread-c
   bottom: 16px;
   width: 3px;
   border-radius: 0 2px 2px 0;
-  background: var(--waux-primary);
+  background: var(--waux-secondary);
 }
 html.waux [data-testid="icon-unread-count"] {
+  background-color: var(--waux-secondary) !important;
+  color: var(--waux-secondary-fg) !important;
   border-radius: 5px !important;
   font-family: var(--waux-mono) !important;
   font-weight: 650 !important;
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 html.waux #side [role="tablist"] [role="tab"],
 html.waux #side [role="tablist"] button {
@@ -150,16 +152,16 @@ html.waux [data-waux-composer] {
 }
 html.waux [data-waux-search] {
   border-radius: var(--waux-radius-sm) !important;
-  box-shadow: 2px 2px 0 var(--waux-hard);
+  box-shadow: var(--waux-o2) var(--waux-hard);
 }
 html.waux [data-waux-composer] {
   border-radius: var(--waux-radius) !important;
-  box-shadow: 3px 3px 0 var(--waux-hard);
+  box-shadow: var(--waux-o3) var(--waux-hard), var(--waux-drop);
 }
 html.waux :is([data-waux-search], [data-waux-composer]):focus-within {
   border-color: var(--waux-primary) !important;
-  box-shadow: 3px 3px 0 var(--waux-primary);
-  transform: translate(-1px, -1px);
+  box-shadow: var(--waux-o3) var(--waux-primary), var(--waux-drop);
+  transform: translate(calc(-1px * var(--waux-dx)), -1px);
 }
 html.waux #main footer [contenteditable="true"] {
   caret-color: var(--waux-primary);
@@ -178,14 +180,16 @@ html.waux #main header {
 }
 
 /* Bubbles: hairline + hard offset shadow, tokenized radius, no tails. */
+/* Capped: WhatsApp's quote and link-preview blocks sit 3px inside with their
+   own small radius; a rounder bubble lets their corners poke out. */
 html.waux [data-testid="msg-container"] {
-  border-radius: var(--waux-radius) !important;
-  box-shadow: 0 0 0 1px var(--waux-border-strong), 3px 3px 0 var(--waux-hard) !important;
+  border-radius: min(var(--waux-radius), 10px) !important;
+  box-shadow: 0 0 0 1px var(--waux-border-strong), var(--waux-o3) var(--waux-hard), var(--waux-drop) !important;
   transition: box-shadow 180ms, transform 180ms cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 html.waux [data-testid^="conv-msg-"]:hover [data-testid="msg-container"] {
-  transform: translate(-2px, -2px);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--waux-primary) 55%, var(--waux-border-strong)), 5px 5px 0 color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard)) !important;
+  transform: translate(calc(-2px * var(--waux-dx)), -2px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--waux-primary) 55%, var(--waux-border-strong)), var(--waux-o5) color-mix(in srgb, var(--waux-primary) 45%, var(--waux-hard)), var(--waux-drop) !important;
 }
 html.waux :is([data-icon="tail-in"], [data-icon="tail-out"], [data-testid="tail-in"], [data-testid="tail-out"]) {
   display: none !important;
@@ -257,40 +261,48 @@ html.waux.waux-wall-ambient #main::after {
   pointer-events: none;
   z-index: -1;
 }
-/* Slow, soft light drifting behind the conversation. */
+/* Soft: a still wash of the theme's two colors from opposite corners. */
 html.waux.waux-wall-ambient #main::before {
-  inset: -15%;
+  inset: 0;
   background:
-    radial-gradient(28% 24% at 72% 26%, color-mix(in srgb, var(--waux-primary) 26%, transparent), transparent 70%),
-    radial-gradient(26% 30% at 22% 78%, color-mix(in srgb, var(--waux-primary) 14%, transparent), transparent 72%),
-    radial-gradient(22% 22% at 46% 50%, color-mix(in srgb, var(--waux-fg) 6%, transparent), transparent 70%);
-  will-change: transform;
-  animation: waux-drift 40s ease-in-out infinite alternate;
+    linear-gradient(155deg, color-mix(in srgb, var(--waux-primary) 9%, transparent), transparent 42%),
+    linear-gradient(335deg, color-mix(in srgb, var(--waux-secondary) 8%, transparent), transparent 46%);
 }
 /* A fine dot grid keeps the canvas from feeling empty. */
 html.waux.waux-wall-ambient #main::after {
   inset: 0;
-  background: radial-gradient(color-mix(in srgb, var(--waux-fg) 9%, transparent) 1px, transparent 1.4px) 0 0 / 22px 22px;
+  background: radial-gradient(color-mix(in srgb, var(--waux-fg) 8%, transparent) 1px, transparent 1.4px) 0 0 / 22px 22px;
   mask-image: radial-gradient(120% 80% at 50% 40%, #000 30%, transparent 85%);
 }
-@keyframes waux-drift {
-  0% {
-    transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1);
-  }
-  50% {
-    transform: translate3d(5%, 4%, 0) rotate(8deg) scale(1.08);
-  }
-  100% {
-    transform: translate3d(-2%, 6%, 0) rotate(-6deg) scale(1.02);
-  }
+
+/* Your own image, blurred and dimmed behind the conversation. */
+html.waux.waux-wall-custom #main {
+  --WDS-systems-chat-background-wallpaper: transparent !important;
+  --WDS-systems-chat-foreground-wallpaper: transparent !important;
+  background: var(--waux-bg) !important;
+  position: relative;
+  isolation: isolate;
 }
-html.waux.waux-reduce-motion #main::before {
-  animation: none;
+html.waux.waux-wall-custom [data-waux-wallpaper] {
+  opacity: 0 !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  html.waux #main::before {
-    animation: none !important;
-  }
+html.waux.waux-wall-custom #main::before,
+html.waux.waux-wall-custom #main::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+/* Oversized then clipped back, so the blur has no soft edges. */
+html.waux.waux-wall-custom #main::before {
+  inset: calc(var(--waux-wall-blur) * -2);
+  background: var(--waux-wall-img) center / cover no-repeat;
+  filter: blur(var(--waux-wall-blur));
+  clip-path: inset(calc(var(--waux-wall-blur) * 2));
+}
+html.waux.waux-wall-custom #main::after {
+  background: color-mix(in srgb, var(--waux-bg) var(--waux-wall-dim), transparent);
 }
 
 /* ---- Privacy --------------------------------------------------------------------------- */
@@ -300,7 +312,8 @@ html.waux.waux-reduce-motion #main::before {
   frosted. Bubbles and chat cards always stay crisp.
   A unit (message row, chat card, chat header) shows its real content while
   it carries .waux-revealed, set from JS on hover or click
-  (engines/privacy/privacy.ts). html.waux-peek (hold Alt) shows everything.
+  (engines/privacy/privacy.ts). Holding Alt reveals the open chat (#main),
+  or everything when no chat is open.
 */
 
 html.waux {
@@ -308,45 +321,46 @@ html.waux {
 }
 
 /* Cipher */
-html.waux.waux-style-cipher:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(.waux-revealed *),
-html.waux.waux-style-cipher:not(.waux-peek).waux-p-msg :is([data-testid="last-msg-status"], [data-testid="last-msg-status"] *):not(.waux-revealed *),
-html.waux.waux-style-cipher:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], [data-testid="cell-frame-title"] *, #main header span[dir], #main header span[title], #main header span[dir] *, #main header span[title] *):not(.waux-revealed *) {
+html.waux.waux-style-cipher:is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(.waux-revealed *),
+html.waux.waux-style-cipher.waux-p-msg :is([data-testid="last-msg-status"], [data-testid="last-msg-status"] *):not(.waux-revealed *),
+html.waux.waux-style-cipher.waux-p-name :is([data-testid="cell-frame-title"], [data-testid="cell-frame-title"] *, #main header span[dir], #main header span[title], #main header span[dir] *, #main header span[title] *):not(.waux-revealed *) {
   font-family: "WAUX Cipher" !important;
   letter-spacing: 0 !important;
   user-select: none;
 }
 
 /* Blur (text only) */
-html.waux.waux-style-blur:not(.waux-peek):is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(:is(span, a) *):not(.waux-revealed *),
-html.waux.waux-style-blur:not(.waux-peek).waux-p-msg [data-testid="last-msg-status"]:not(.waux-revealed *),
-html.waux.waux-style-blur:not(.waux-peek).waux-p-name :is([data-testid="cell-frame-title"], #main header span[title], #main header span[dir]):not(.waux-revealed *) {
+html.waux.waux-style-blur:is(.waux-p-msg, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(span, a):not(:is(span, a) *):not(.waux-revealed *),
+html.waux.waux-style-blur.waux-p-msg [data-testid="last-msg-status"]:not(.waux-revealed *),
+html.waux.waux-style-blur.waux-p-name :is([data-testid="cell-frame-title"], #main header span[title], #main header span[dir]):not(.waux-revealed *) {
   filter: blur(var(--waux-blur-px));
   user-select: none;
 }
 
 /* Media: frosted. */
-html.waux:not(.waux-peek):is(.waux-p-media, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(img:not([src*="pps.whatsapp.net"]):not([data-plain-text]), video):not(.waux-revealed *) {
+html.waux:is(.waux-p-media, .waux-chat-blur) #main [data-testid^="conv-msg-"] :is(img:not([src*="pps.whatsapp.net"]):not([data-plain-text]), video):not(.waux-revealed *) {
   filter: blur(calc(var(--waux-blur-px) + 6px)) grayscale(1) brightness(0.75);
   transition: filter 220ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Photos: replaced by a 3D character avatar (avatars.css, generated SVG),
    painted on the <img> itself; object-position pushes the real pixels out. */
-html.waux:not(.waux-peek).waux-p-avatar :is([data-testid="cell-frame-container"] img, #main header img, img[src*="pps.whatsapp.net"]):not(.waux-revealed *) {
+html.waux.waux-p-avatar :is([data-testid="cell-frame-container"] img, #main header img, img[src*="pps.whatsapp.net"]):not(.waux-revealed *) {
   object-position: -9999px 0 !important;
   background: var(--waux-av, var(--waux-av-0)) center / cover no-repeat !important;
 }
 /* Avatars with no photo (initials, default silhouette): same 3D character. */
-html.waux:not(.waux-peek).waux-p-avatar [data-waux-initials]:not(.waux-revealed *) {
+html.waux.waux-p-avatar [data-waux-initials]:not(.waux-revealed *) {
   background: var(--waux-av, var(--waux-av-0)) center / cover no-repeat !important;
 }
-html.waux:not(.waux-peek).waux-p-avatar [data-waux-initials]:not(.waux-revealed *) > * {
+html.waux.waux-p-avatar [data-waux-initials]:not(.waux-revealed *) > * {
   visibility: hidden !important;
 }
 /* Initials avatars (no photo) are text: cipher them too, as a fallback. */
-html.waux.waux-style-cipher:not(.waux-peek).waux-p-avatar [data-testid="cell-frame-container"] > :first-child span:not(.waux-revealed *) {
+html.waux.waux-style-cipher.waux-p-avatar [data-testid="cell-frame-container"] > :first-child span:not(.waux-revealed *) {
   font-family: "WAUX Cipher" !important;
-}/* Decode: letters snap in from wide tracking with an ember afterglow. */
+}/* Decode: letters fade in with an ember afterglow. No tracking change, so
+   the text keeps its width and nothing around it resizes. */
 @media (prefers-reduced-motion: no-preference) {
   html.waux.waux-style-cipher:not(.waux-reduce-motion):is(.waux-p-msg, .waux-p-name, .waux-chat-blur) .waux-revealed :is(span[dir], [data-testid="cell-frame-title"], [data-testid="last-msg-status"]) {
     animation: waux-decode 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -355,14 +369,79 @@ html.waux.waux-style-cipher:not(.waux-peek).waux-p-avatar [data-testid="cell-fra
 @keyframes waux-decode {
   0% {
     opacity: 0.25;
-    letter-spacing: 0.18em;
     text-shadow: 0 0 10px var(--waux-primary);
   }
   60% {
     opacity: 1;
-    letter-spacing: 0;
   }
   100% {
     text-shadow: none;
   }
+}
+/* ---- Soft 3D style -------------------------------------------------------------------------- */
+/*
+  Theme style "soft" (html.waux-soft): the shared lift rules above already
+  switch to a vertical bottom lip plus an ambient drop (compile.ts, --waux-oN).
+  This adds thicker borders, colored lips and the tactile press. Color stays
+  in two roles: primary leads, secondary signals.
+*/
+
+html.waux.waux-soft #pane-side [data-testid="cell-frame-container"]::before {
+  border-width: 2px;
+}
+/* A lip is its color pressed darker. */
+html.waux.waux-soft #pane-side [aria-selected="true"] [data-testid="cell-frame-container"]::before {
+  box-shadow: var(--waux-o4) color-mix(in srgb, var(--waux-primary) 70%, #000), var(--waux-drop);
+}
+/* Press: the card sinks onto its lip. */
+html.waux.waux-soft #pane-side [role="row"]:active [data-testid="cell-frame-container"]::before {
+  transform: translateY(2px);
+  box-shadow: var(--waux-o1) var(--waux-hard);
+  transition-duration: 60ms;
+}
+html.waux.waux-soft [data-testid="icon-unread-count"] {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--waux-secondary) 65%, #000);
+}
+
+/* Filter tabs: raised chips; the active one in primary. */
+html.waux.waux-soft #side [role="tablist"] :is([role="tab"], button) {
+  border: 2px solid var(--waux-border-strong) !important;
+  box-shadow: var(--waux-o2) var(--waux-hard);
+  transition: transform 120ms cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 120ms, background-color 140ms, color 140ms;
+}
+html.waux.waux-soft #side [role="tablist"] :is([role="tab"], button):is([aria-selected="true"], [aria-pressed="true"]) {
+  border-color: var(--waux-primary) !important;
+  background-color: color-mix(in srgb, var(--waux-primary) 14%, var(--waux-card)) !important;
+  color: var(--waux-primary) !important;
+  box-shadow: var(--waux-o2) color-mix(in srgb, var(--waux-primary) 70%, #000);
+}
+html.waux.waux-soft #side [role="tablist"] :is([role="tab"], button):active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* Search lights up in secondary; the composer keeps primary. */
+html.waux.waux-soft [data-waux-search]:focus-within {
+  border-color: var(--waux-secondary) !important;
+  box-shadow: var(--waux-o3) color-mix(in srgb, var(--waux-secondary) 65%, #000), var(--waux-drop);
+}
+html.waux.waux-soft [data-waux-composer]:focus-within {
+  box-shadow: var(--waux-o3) color-mix(in srgb, var(--waux-primary) 70%, #000), var(--waux-drop);
+}
+html.waux.waux-soft #main header {
+  box-shadow: 0 1px 0 var(--waux-border), 0 8px 18px -12px var(--waux-hard-soft);
+}
+
+/* Outgoing bubbles sit on a lip of their own color. */
+html.waux.waux-soft .message-out [data-testid="msg-container"] {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--waux-out) 70%, var(--waux-primary)), var(--waux-o3) color-mix(in srgb, var(--waux-out) 55%, #000), var(--waux-drop) !important;
+}
+
+/* ---- Nicknames ------------------------------------------------------------------------------- */
+/* The font size a nickname is drawn at, resolved to px on the name's parent
+   (rules generated by compile.ts nicknameCss). */
+@property --waux-fs {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 16px;
 }

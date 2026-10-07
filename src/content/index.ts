@@ -10,12 +10,13 @@ import { downloadText, layoutReport, navAnchor } from '../adapter/report.ts';
 import { declutterFlags, installReveal, privacyFlags } from '../engines/privacy/privacy.ts';
 import { chatListVisible, hideDividers, introShowing, markColumns, markInitials, markInputs, markWallpaper, tagNav, tagPromo } from '../adapter/markers.ts';
 import { shortcutToken, templatesForShortcut } from '../engines/quick/search.ts';
-import { chatAccentCss, whatsappCss } from '../engines/theme/compile.ts';
+import { chatCss, cssStr, nicknameCss, whatsappCss } from '../engines/theme/compile.ts';
 import { Overlay, type Actions, type UiState, type View } from '../overlay/Overlay.tsx';
 import overlayCss from '../overlay/overlay.css';
 import { createStore } from '../overlay/store.ts';
 import { loadState, normalize, onState, save } from '../shared/storage.ts';
-import type { Density, Mode, State, Template } from '../shared/types.ts';
+import type { ChatPrefs, Density, Mode, State, Template, Wallpaper } from '../shared/types.ts';
+import { chatWallKey } from '../shared/wallpaper.ts';
 import componentsCss from '../ui/components.css';
 
 const root = document.documentElement;
@@ -38,6 +39,7 @@ function styleEl(id: string) {
 }
 const themeStyle = styleEl('waux-theme');
 const chatStyle = styleEl('waux-chat');
+const nickStyle = styleEl('waux-nick');
 
 // ---- Apply state -------------------------------------------------------------
 
@@ -56,8 +58,9 @@ function apply() {
   if (!s.enabled) {
     themeStyle.textContent = '';
     chatStyle.textContent = '';
+    nickStyle.textContent = '';
     setFlags({});
-    root.classList.remove('waux-font', 'waux-reduce-motion', 'waux-focus-on', 'waux-nochat', 'waux-wall-ambient', 'waux-wall-plain');
+    root.classList.remove('waux-font', 'waux-reduce-motion', 'waux-focus-on', 'waux-nochat', 'waux-wall-ambient', 'waux-wall-plain', 'waux-wall-custom', 'waux-soft');
     root.dataset.wauxNotif = '0';
     adapter.stop();
     disposeReveal?.();
@@ -65,11 +68,11 @@ function apply() {
     ui.set({ view: null, suggest: null, dock: null, stage: null });
     return;
   }
-  themeStyle.textContent = whatsappCss(state.theme, s.mode);
+  const globalWall = state.walls.global;
+  themeStyle.textContent = whatsappCss(state.theme, s.mode) + (globalWall ? `html.waux{--waux-wall-img:url(${cssStr(globalWall)})}` : '');
   root.classList.toggle('waux-font', state.theme.font === 'geist');
   root.classList.toggle('waux-reduce-motion', s.reduceMotion);
-  root.classList.toggle('waux-wall-ambient', state.theme.wallpaper === 'ambient');
-  root.classList.toggle('waux-wall-plain', state.theme.wallpaper === 'plain');
+  root.classList.toggle('waux-soft', state.theme.style === 'soft');
   host?.classList.toggle('reduce-motion', s.reduceMotion);
   root.style.setProperty('--waux-blur-px', `${s.privacy.strength}px`);
   // Read by the main-world script when WhatsApp raises a notification.
@@ -83,13 +86,28 @@ function apply() {
 }
 
 let dividerX = 0;
+let wall: Wallpaper = 'ambient';
+
+/** The wallpaper the open chat shows: its own override, else the theme's. An image mode with no image falls back to Soft. */
+function effectiveWall(chat: string | null, prefs: ChatPrefs | undefined): Wallpaper {
+  const w = prefs?.wallpaper ?? state.theme.wallpaper;
+  if (w !== 'custom') return w;
+  const img = prefs?.wallpaper === 'custom' && chat ? state.walls[chatWallKey(chat)] : state.walls.global;
+  return img ? 'custom' : 'ambient';
+}
 
 function applyChat() {
   if (!state.settings.enabled) return;
   const chat = adapter.activeChat;
   const prefs = chat ? state.settings.chats[chat] : undefined;
   setFlags({ ...privacyFlags(state.settings, !!prefs?.blur), ...declutterFlags(state.settings) });
-  chatStyle.textContent = prefs?.accent ? chatAccentCss(state.theme, state.settings.mode, prefs.accent) : '';
+  const chatWall = chat && prefs?.wallpaper === 'custom' ? state.walls[chatWallKey(chat)] : undefined;
+  chatStyle.textContent = prefs ? chatCss(state.theme, state.settings.mode, prefs, chatWall) : '';
+  nickStyle.textContent = nicknameCss(state.settings.chats, chat);
+  wall = effectiveWall(chat, prefs);
+  root.classList.toggle('waux-wall-ambient', wall === 'ambient');
+  root.classList.toggle('waux-wall-plain', wall === 'plain');
+  root.classList.toggle('waux-wall-custom', wall === 'custom');
   root.classList.toggle('waux-nochat', !adapter.hasChat);
   const focusOn = state.settings.focus && adapter.hasChat;
   if (focusOn && !root.classList.contains('waux-focus-on')) {
@@ -196,10 +214,18 @@ const actions: Actions = {
   setChatPrefs(name, patch) {
     patchSettings((s) => {
       const merged = { ...s.chats[name], ...patch };
-      for (const k of Object.keys(merged) as (keyof typeof merged)[]) if (merged[k] === undefined || merged[k] === false) delete merged[k];
+      for (const k of Object.keys(merged) as (keyof typeof merged)[]) if (merged[k] === undefined || merged[k] === false || merged[k] === '') delete merged[k];
       if (Object.keys(merged).length) s.chats[name] = merged;
       else delete s.chats[name];
     });
+  },
+  setChatWallpaper(name, wallpaper, image) {
+    const key = chatWallKey(name);
+    const walls = { ...state.walls };
+    if (image) walls[key] = image;
+    else if (wallpaper !== 'custom') delete walls[key];
+    if (walls[key] !== state.walls[key]) persist('walls', walls);
+    actions.setChatPrefs(name, { wallpaper });
   },
   setHidden(name, hidden) {
     const key = normalizeName(name);
@@ -423,7 +449,7 @@ function scan() {
   const d = state.settings.declutter;
   if (d.communities || d.channels || d.status || d.calls || d.metaAi) tagNav(d.metaAi);
   if (d.promo) tagPromo();
-  if (state.theme.wallpaper !== 'doodles') markWallpaper();
+  if (wall !== 'doodles') markWallpaper();
   if (root.classList.contains('waux-focus-on')) hideDividers(dividerX);
 }
 

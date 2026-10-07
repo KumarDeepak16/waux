@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 (2026-10-07)
+
+- New Prism theme and a Soft 3D style: rounded surfaces on a bottom lip, a press that sinks, colored lips on selected chats, tabs and sent bubbles. Any palette can switch between Hard and Soft 3D in Theme Studio.
+- New Secondary color token for unread badges and search focus. Existing themes keep their primary there, so nothing changes until you set it.
+- Wallpapers: Soft is now a still color wash with a fine dot grid (no animation), and you can use your own image, blurred and dimmed, globally or per chat.
+- Customize this chat: private nickname, text size (90 to 125%), wallpaper and wide bubbles, next to accent and always-blur.
+- Menu and button hovers in WhatsApp show again under every theme.
+- Cipher text now matches the real text's width, so revealing a message no longer resizes it, and the decode animation no longer changes letter spacing.
+- Holding Alt reveals only the open chat, not the chat list.
+- Message bubbles cap their corner radius so quote and link-preview blocks stay inside.
+
 ## 1.0.1 (2026-10-06)
 
 - Fix a start-up crash ("Cannot read properties of undefined (reading 'length')") when WAUX attaches to a WhatsApp tab that is already open, for example right after install or update.
